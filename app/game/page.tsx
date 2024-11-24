@@ -25,8 +25,6 @@ import nextLevelImage from "@/assets/nextLevel.png";
 
 
 
-
-
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const router = useRouter();
@@ -761,6 +759,8 @@ const Game = () => {
 >
   Menu
 </button>
+
+
     </div>
 
     

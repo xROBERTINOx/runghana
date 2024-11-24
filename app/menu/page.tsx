@@ -28,7 +28,7 @@ export default function LevelMenu() {
                                 src={`/images/level-${level}.png`}
                                 alt={`Level ${level}`}
                                 fill
-                                className={`rounded-xl border-4 border-purple-500 
+                                className={`rounded-xl  
                                          shadow-lg transition-all duration-300 object-contain 
                                          group-hover:border-purple-400 group-hover:shadow-purple-500/25 ${styles.crispImage}`} // Add the custom CSS class
                             />

@@ -41,7 +41,7 @@ export const getLevel = (level: number): LevelConfig => {
           { x: 400, y: 350 },
           { x: 600, y: 200 },
         ],
-        floor: [{ x: 0, y: 960, width: 1300, height: 40 }],
+        floor: [{ x: 0, y: 800, width: 1300, height: 60 }],
         gameFieldWidth: 1300,
         gameFieldHeight: 850,
         obstacles: [{ x: 600, y: 600, size: 60 }],
@@ -90,7 +90,7 @@ export const getLevel = (level: number): LevelConfig => {
         gameFieldWidth: 1300,
         gameFieldHeight: 850,
         obstacles: [{ x: 600, y: 600, size: 50 }],
-        doorPosition: { x: 1800, y: 920 }
+        doorPosition: { x: 650, y: 95 }
       };
 
     case 5:
