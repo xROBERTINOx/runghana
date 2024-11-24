@@ -99,8 +99,8 @@ export const getLevel = (level: number): LevelConfig => {
         player2Start: { x: 1200, y: 750 },
         goalPosition: { x: 650, y: 50 },
         platforms: [
-          { x: 400, y: 800 },
-          { x: 800, y: 600 },
+          { x: 400, y: 600 },
+          { x: 800, y: 800 },
           { x: 200, y: 650 },
           { x: 200, y: 500 },
           { x: 1100, y: 500 },
@@ -111,7 +111,7 @@ export const getLevel = (level: number): LevelConfig => {
         gameFieldWidth: 1300,
         gameFieldHeight: 850,
         obstacles: [{ x: 600, y: 600, size: 50 }],
-        doorPosition: { x: 1100, y: 400 }
+        doorPosition: { x: 1800, y: 920 }
       };
 
     default:
