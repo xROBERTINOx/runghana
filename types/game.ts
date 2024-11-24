@@ -7,6 +7,15 @@ export interface Position {
 export interface Platform {
   x: number;
   y: number;
+  width?: number;
+  height?: number;
+}
+
+export interface Floor {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface Obstacle {
@@ -23,4 +32,6 @@ export interface LevelConfig {
   gameFieldWidth: number;
   gameFieldHeight: number;
   obstacles: Obstacle[];
+  floor: Floor[];
+  doorPosition: Position; // Add this line
 }

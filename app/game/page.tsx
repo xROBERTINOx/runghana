@@ -8,6 +8,14 @@ import player2Image from '@/assets/player2.png';
 import platformImage from '@/assets/platform1.png';
 import player1SpriteSheetWalking from '@/assets/player1Walking.png';
 import player2SpriteSheetWalking from '@/assets/player2Walking.png';
+import backgroundImage from '@/assets/background.png';
+import floorImage from '@/assets/floor1.png';
+import obstacleImage from '@/assets/obstacle1.png';
+import gameOverImage from '@/assets/GAMEOVER.png';
+import restartButtonImage from '@/assets/restartButton.png';
+import doorImage from '@/assets/door.png';
+import winScreenImage from '@/assets/winScreen.png';
+
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,6 +25,10 @@ const Game = () => {
     platform?: HTMLImageElement;
     player1WalkingSprite?: HTMLImageElement;
     player2WalkingSprite?: HTMLImageElement;
+    floor?: HTMLImageElement;
+    obstacle?: HTMLImageElement;
+    door?: HTMLImageElement;
+    winScreen?: HTMLImageElement;
   }>({});
   
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -38,6 +50,8 @@ const Game = () => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
+  const [isObstacleTouched, setIsObstacleTouched] = useState(false);
+
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -64,14 +78,22 @@ const Game = () => {
       loadImage(player2Image.src),
       loadImage(platformImage.src),
       loadImage(player1SpriteSheetWalking.src),
-      loadImage(player2SpriteSheetWalking.src)
-    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite]) => {
+      loadImage(player2SpriteSheetWalking.src),
+      loadImage(floorImage.src),
+      loadImage(obstacleImage.src),
+      loadImage(doorImage.src),
+      loadImage(winScreenImage.src),
+    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite, floor, obstacle, doorImg, winScreenImg]) => {
       imagesRef.current = {
         player1: player1Img,
         player2: player2Img,
         platform: platformImg,
         player1WalkingSprite: player1WalkingSprite,
-        player2WalkingSprite: player2WalkingSprite
+        player2WalkingSprite: player2WalkingSprite,
+        floor: floor,
+        obstacle: obstacle,
+        door: doorImg,
+        winScreen: winScreenImg,
       };
       setImagesLoaded(true);
     }).catch(error => {
@@ -82,6 +104,7 @@ const Game = () => {
 
   // Main game loop
   useEffect(() => {
+    
     if (!imagesLoaded) return;
 
     let animationFrameId: number;
@@ -91,6 +114,10 @@ const Game = () => {
     const frameHeight = 64;
     const player1NumFrames = 4;
     const player2NumFrames = 3;
+    const obstacleWidth = obstacleImage.width / 7;
+    const obstacleFrameCount = 7;
+    let currentObstacleFrame = 0;
+  
 
 
     const render = (currentTime: number) => {
@@ -99,6 +126,8 @@ const Game = () => {
       
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      
+      ctx.imageSmoothingEnabled = false;
 
       const deltaTime = (currentTime - lastTime) / 16.67;
       lastTime = currentTime;
@@ -113,8 +142,8 @@ const Game = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw background
-      ctx.fillStyle = '#1F2937';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // ctx.fillStyle = '#1F2937';
+      // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw platforms
       levelConfig.platforms.forEach(platform => {
@@ -123,28 +152,85 @@ const Game = () => {
             imagesRef.current.platform,
             platform.x,
             platform.y,
-            120,
-            50
+            platform.width || 120,
+            platform.height || 50
           );
         }
       });
+      
+      // Draw floor
+      // Draw floor
+      levelConfig.floor.forEach(floor => {
+        const floorImage = imagesRef.current.floor;
+        if (floorImage) {
+          // Get the natural width of the floor image
+          const imageWidth = floorImage.width;
+          // Calculate how many times we need to repeat the image
+          const repetitions = Math.ceil(floor.width / imageWidth);
+          
+          // Draw the floor image repeatedly
+          for (let i = 0; i < repetitions; i++) {
+            const currentX = floor.x + (i * imageWidth);
+            const remainingWidth = floor.width - (i * imageWidth);
+            const width = Math.min(imageWidth, remainingWidth);
+            
+            ctx.drawImage(
+              floorImage,
+              0, // source x
+              0, // source y
+              width, // source width
+              floorImage.height, // source height
+              currentX, // destination x
+              floor.y, // destination y
+              width, // destination width
+              floor.height // destination height
+            );
+          }
+        }
+      });
+      
+      //draw door
+      if (imagesRef.current.door) {
+        ctx.drawImage(
+          imagesRef.current.door,
+          levelConfig.doorPosition.x,
+          levelConfig.doorPosition.y,
+          100, // door width
+          120 // door height
+        );
+      }
+
 
       // Draw obstacles
-      levelConfig.obstacles.forEach(obstacle => {
-        ctx.fillStyle = '#EF4444';
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.size, obstacle.size);
+      levelConfig.obstacles.forEach((obstacle) => {
+        if (imagesRef.current.obstacle) {
+          ctx.save();
+          ctx.translate(obstacle.x, obstacle.y);
+    
+          // Rotate the obstacle if it's touched
+          if (isObstacleTouched) {
+            ctx.rotate((currentObstacleFrame / obstacleFrameCount) * Math.PI * 2);
+          }
+    
+          ctx.drawImage(
+            imagesRef.current.obstacle,
+            currentObstacleFrame * obstacleWidth,
+            0,
+            obstacleWidth,
+            obstacleImage.height,
+            -obstacle.size / 2,
+            -obstacle.size / 2,
+            obstacle.size,
+            obstacle.size
+          );
+          ctx.restore();
+        }
       });
-
-      // Draw goal
-      ctx.fillStyle = '#FCD34D';
-      ctx.fillRect(
-        levelConfig.goalPosition.x,
-        levelConfig.goalPosition.y,
-        goalSize,
-        goalSize
-      );
+    
+      
 
       // Draw Player 1 (with walking animation)
+      
       if (imagesRef.current.player1WalkingSprite && imagesRef.current.player1) {
         if (player1IsMoving) {
           ctx.save();
@@ -225,16 +311,16 @@ const Game = () => {
         0,
         player1Pos.x,
         player1Pos.y,
-        100
+        300
       );
       gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
       gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.fillStyle = gradient;
       ctx.fillRect(
-        player1Pos.x - 100,
-        player1Pos.y - 100,
-        200,
-        200
+        player1Pos.x - 300,
+        player1Pos.y - 300,
+        600,
+        600
       );
 
       animationFrameId = requestAnimationFrame(render);
@@ -270,19 +356,60 @@ const Game = () => {
 
   // Physics update loop
   useEffect(() => {
+    // Check for player1 and player2 colliding
+    const player1 = player1Pos;
+      const player2 = player2Pos;
+      if (
+        player1.x < player2.x + playerDiameter &&
+        player1.x + playerDiameter > player2.x &&
+        player1.y < player2.y + playerDiameter &&
+        player1.y + playerDiameter > player2.y
+      ) {
+        setGameOver(true);
+      }
+    
+      //check for if touching obstacle
+      levelConfig.obstacles.forEach(obstacle => {
+        if (
+          player1Pos.x + playerRadius > obstacle.x &&
+          player1Pos.x - playerRadius < obstacle.x + obstacle.size &&
+          player1Pos.y + playerRadius > obstacle.y &&
+          player1Pos.y - playerRadius < obstacle.y + obstacle.size
+        ) {
+          setGameOver(true);
+        }
+      });
+
+      if (
+        player1Pos.x < levelConfig.doorPosition.x + 50 &&
+        player1Pos.x + playerDiameter > levelConfig.doorPosition.x &&
+        player1Pos.y < levelConfig.doorPosition.y + 50 &&
+        player1Pos.y + playerDiameter > levelConfig.doorPosition.y
+      ) {
+        setLevelComplete(true);
+      }
+      if (
+        player2Pos.x < levelConfig.doorPosition.x + 50 &&
+        player2Pos.x + playerDiameter > levelConfig.doorPosition.x &&
+        player2Pos.y < levelConfig.doorPosition.y + 100 &&
+        player2Pos.y + playerDiameter > levelConfig.doorPosition.y
+      ) {
+        setLevelComplete(true);
+      }
+
     let animationFrameId: number;
     let lastTime = performance.now();
-    
+  
     const updatePhysics = (currentTime: number) => {
       const deltaTime = (currentTime - lastTime) / 16.67;
       lastTime = currentTime;
-
+  
       if (!gameOver && !levelComplete) {
         // Update player 1
         setPlayer1Pos(prev => {
           const newPos = { ...prev };
           let isMoving = false;
-
+  
           // Apply horizontal movement
           if (keysPressed.has('d')) {
             newPos.x += moveSpeed * deltaTime;
@@ -294,80 +421,80 @@ const Game = () => {
             isMoving = true;
             setPlayer1Direction('left');
           }
-
+  
           setPlayer1IsMoving(isMoving);
           
           // Apply gravity
           newPos.vy += gravity * deltaTime;
           newPos.y += newPos.vy * deltaTime;
-
-          // Platform collisions
-          const onGround = checkPlatformCollisions(newPos);
+  
+          // Check both platform and floor collisions
+          const onPlatform = checkPlatformCollisions(newPos);
+          const onFloor = checkFloorCollisions(newPos);
           
-          // Allow jumping only if on ground
-          if (onGround && keysPressed.has('w') && newPos.vy >= 0) {
+          // Allow jumping if on either platform or floor
+          if ((onPlatform || onFloor) && keysPressed.has('w') && newPos.vy >= 0) {
             newPos.vy = jumpForce;
           }
-
+  
           // Constrain to game bounds
           newPos.x = Math.max(playerRadius, Math.min(levelConfig.gameFieldWidth - playerRadius, newPos.x));
           newPos.y = Math.max(playerRadius, Math.min(levelConfig.gameFieldHeight - playerRadius, newPos.y));
-
+  
           return newPos;
         });
-
-        // Update player 2
+  
+        // Update player 2 with similar changes
         setPlayer2Pos(prev => {
           const newPos = { ...prev };
           let isMoving = false;
-          
-          if (keysPressed.has('d') || keysPressed.has('a')) {
-            if (newPos.x < player1Pos.x) {
+        
+          // If 'a' or 'd' is pressed, move towards player 1
+          if (keysPressed.has('a') || keysPressed.has('d')) {
+            if (player2Pos.x < player1Pos.x) {
               newPos.x += moveSpeed * deltaTime;
               isMoving = true;
-              setPlayer2Direction('right');
-            } else if (newPos.x > player1Pos.x) {
+              setPlayer2Direction('left');
+            } else if (player2Pos.x > player1Pos.x) {
               newPos.x -= moveSpeed * deltaTime;
               isMoving = true;
-              setPlayer2Direction('left');
+              setPlayer2Direction('right');
             }
           }
-
-          setPlayer2IsMoving(isMoving);
-          
+        
+          // Apply gravity
           newPos.vy += gravity * deltaTime;
           newPos.y += newPos.vy * deltaTime;
-
-          const onGround = checkPlatformCollisions(newPos);
+  
+          // Check both platform and floor collisions
+          const onPlatform = checkPlatformCollisions(newPos);
+          const onFloor = checkFloorCollisions(newPos);
           
-          if (onGround && keysPressed.has('ArrowUp') && newPos.vy >= 0) {
+          // Allow jumping if on either platform or floor
+          if ((onPlatform || onFloor) && keysPressed.has('w') && newPos.vy >= 0) {
             newPos.vy = jumpForce;
           }
-
+  
+          // Constrain to game bounds
           newPos.x = Math.max(playerRadius, Math.min(levelConfig.gameFieldWidth - playerRadius, newPos.x));
           newPos.y = Math.max(playerRadius, Math.min(levelConfig.gameFieldHeight - playerRadius, newPos.y));
-
+  
           return newPos;
         });
-
-        // Check win/lose conditions
-        if (checkIfTouching(player1Pos, player2Pos)) {
-          setGameOver(true);
-        }
-        if (checkIfTouchingGoal(player1Pos)) {
-          setLevelComplete(true);
-        }
-      }
       
+        
+      }
+  
       animationFrameId = requestAnimationFrame(updatePhysics);
     };
-    
+  
     animationFrameId = requestAnimationFrame(updatePhysics);
     return () => cancelAnimationFrame(animationFrameId);
   }, [keysPressed, gameOver, levelComplete, levelConfig, player1Pos.x, player2Pos.x]);
 
 
-  // Rest of the utility functions remain the same...
+
+  //  utility functions 
   const checkPlatformCollisions = (position: Position & { vy: number }) => {
     let onGround = false;
     const platformWidth = 120;
@@ -396,6 +523,38 @@ const Game = () => {
     
     return onGround;
   };
+
+  const checkFloorCollisions = (position: Position & { vy: number }) => {
+    let onGround = false;
+    
+    for (const floor of levelConfig.floor) {
+      // Check if player is within the floor's x bounds
+      if (position.x + playerRadius > floor.x && 
+          position.x - playerRadius < floor.x + floor.width) {
+        
+        // Check if player is touching the top of the floor
+        if (position.vy > 0 && 
+            position.y + playerRadius > floor.y && 
+            position.y + playerRadius < floor.y + floor.height) {
+          position.y = floor.y - playerRadius;
+          position.vy = 0;
+          onGround = true;
+        }
+        
+        // Check if player is hitting the bottom of the floor
+        if (position.vy < 0 && 
+            position.y - playerRadius < floor.y + floor.height && 
+            position.y - playerRadius > floor.y) {
+          position.y = floor.y + floor.height + playerRadius;
+          position.vy = 0;
+        }
+      }
+    }
+    
+    return onGround;
+  };
+
+
 
   const checkIfTouching = (pos1: Position, pos2: Position) => {
     const distance = Math.sqrt(
@@ -447,68 +606,101 @@ const Game = () => {
       <div className="text-center mb-4">
         <h2 className="text-2xl font-bold text-purple-600">Level {currentLevel}</h2>
         <p className="text-sm text-gray-600 mt-2">
-          Blue Player: WSAD to move and jump | Red Player: Arrow keys to move and jump
+          YOU: WSAD to move and jump, don't let your shadow get you!
         </p>
       </div>
       
       <div className="relative">
       <div className="absolute inset-0 bg-black opacity-40"></div>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+  </div>
         <canvas
           ref={canvasRef}
           width={levelConfig.gameFieldWidth}
           height={levelConfig.gameFieldHeight}
           className="rounded-lg border-2 border-gray-300"
+          style={{
+            imageRendering: "pixelated", 
+            width: levelConfig.gameFieldWidth + "px", 
+            height: levelConfig.gameFieldHeight + "px",
+            backgroundImage: `url(${backgroundImage.src})`,
+            backgroundSize: 'cover'
+          }}
         />
 
-        {levelComplete && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <div className="space-y-4 text-center">
-              <Alert className="bg-green-500 border-green-700">
-                <AlertDescription className="text-white text-lg">
-                  Level Complete! 🎉
-                </AlertDescription>
-              </Alert>
-              {currentLevel < MAX_LEVEL ? (
-                <button
-                  onClick={nextLevel}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  Next Level
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-white text-lg font-bold">
-                    Congratulations! You've completed all levels! 🏆
-                  </p>
-                  <button
-                    onClick={resetGame}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Play Again
-                  </button>
-                </div>
-              )}
+{levelComplete && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+            </div>
+            <img
+              src={winScreenImage.src}
+              alt="Level Complete"
+              style={{
+                width: '50%',
+                height: '50%',
+                objectFit: 'contain',
+                zIndex: 30 // Increase the z-index to bring the image to the front
+              }}
+            />
+            <div className="absolute bottom-10 space-x-4" style={{ zIndex: 31 }}>
+              <button
+                onClick={() => {
+                  if (currentLevel < MAX_LEVEL) {
+                    setCurrentLevel(currentLevel + 1);
+                    resetLevel();
+                  } else {
+                    resetGame();
+                  }
+                }}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+              >
+                {currentLevel < MAX_LEVEL ? 'Next Level' : 'Restart Game'}
+              </button>
+              <img
+                src={restartButtonImage.src}
+                alt="Restart Game"
+                style={{
+                  width: '100px', // Adjust the size as needed
+                  height: '100px', // Adjust the size as needed
+                  objectFit: 'contain'
+                }}
+              />
             </div>
           </div>
         )}
 
-        {gameOver && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <div className="space-y-4 text-center">
-              <Alert className="bg-red-500 border-red-700">
-                <AlertDescription className="text-white text-lg">
-                  Game Over! Players collided! 💥
-                </AlertDescription>
-              </Alert>
-              <button
-                onClick={resetLevel}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
+{gameOver && (
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+    </div>
+    <img
+      src={gameOverImage.src}
+      alt="Game Over"
+      style={{
+        width: '50%',
+        height: '50%',
+        objectFit: 'contain',
+        zIndex: 30 
+      }}
+    />
+   <button
+              onClick={resetGame}
+              className="absolute bottom-10"
+              style={{ zIndex: 31, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
+            >
+              <img
+                src={restartButtonImage.src}
+                alt="Restart Game"
+                style={{
+                  width: '100px', // Adjust the size as needed
+                  height: '100px', // Adjust the size as needed
+                  objectFit: 'contain'
+                }}
+              />
+            </button>
+  </div>
+)}
+
 
         {!imagesLoaded && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
