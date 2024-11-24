@@ -3,6 +3,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getLevel, MAX_LEVEL } from '@/config/levels';
 import type { Position, Platform, Obstacle } from '@/types/game';
+import player1Image from '@/assets/player1.png';
+import player2Image from '@/assets/player2.png';
 
 const Game = () => {
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -336,21 +338,29 @@ const Game = () => {
           />
         ))}
         
-        {/* Player 1 Circle (Blue) */}
-        <div 
-          className="absolute w-12 h-12 bg-blue-500 rounded-full transition-transform"
+        {/* Player 1 Image (Blue) */}
+        <img 
+          src={player1Image.src}
+          alt="Player 1"
+          className="absolute"
           style={{ 
             left: player1Pos.x - playerRadius,
-            top: player1Pos.y - playerRadius
+            top: player1Pos.y - playerRadius,
+            width: playerDiameter,
+            height: playerDiameter
           }}
         />
         
-        {/* Player 2 Circle (Red) */}
-        <div 
-          className="absolute w-12 h-12 bg-red-500 rounded-full transition-transform"
+        {/* Player 2 Image (Red) */}
+        <img 
+          src={player2Image.src}
+          alt="Player 2"
+          className="absolute"
           style={{ 
             left: player2Pos.x - playerRadius,
-            top: player2Pos.y - playerRadius
+            top: player2Pos.y - playerRadius,
+            width: playerDiameter,
+            height: playerDiameter
           }}
         />
       </div>
