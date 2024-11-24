@@ -115,7 +115,7 @@ const Game = () => {
     const player2NumFrames = 3;
     const obstacleWidth = obstacleImage.width / 7;
     const obstacleFrameCount = 7;
-    let currentObstacleFrame = 0;
+    const currentObstacleFrame = 0;
   
 
 
@@ -128,7 +128,7 @@ const Game = () => {
       
       ctx.imageSmoothingEnabled = false;
 
-      const deltaTime = (currentTime - lastTime) / 16.67;
+      // const deltaTime = (currentTime - lastTime) / 16.67;
       lastTime = currentTime;
 
       if ((player1IsMoving || player2IsMoving) && currentTime - lastFrameUpdate > frameUpdateInterval) {
@@ -448,17 +448,17 @@ const Game = () => {
         // Update player 2 with similar changes
         setPlayer2Pos(prev => {
           const newPos = { ...prev };
-          let isMoving = false;
+          // let isMoving = false;
         
           // If "a" or "d" is pressed, move towards player 1
           if (keysPressed.has("a") || keysPressed.has("d")) {
             if (player2Pos.x < player1Pos.x) {
               newPos.x += moveSpeed * deltaTime;
-              isMoving = true;
+              // isMoving = true;
               setPlayer2Direction("left");
             } else if (player2Pos.x > player1Pos.x) {
               newPos.x -= moveSpeed * deltaTime;
-              isMoving = true;
+              // isMoving = true;
               setPlayer2Direction("right");
             }
           }
@@ -557,34 +557,34 @@ const Game = () => {
 
 
 
-  const checkIfTouching = (pos1: Position, pos2: Position) => {
-    const distance = Math.sqrt(
-      Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2)
-    );
-    return distance < playerDiameter;
-  };
+  // const checkIfTouching = (pos1: Position, pos2: Position) => {
+  //   const distance = Math.sqrt(
+  //     Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2)
+  //   );
+  //   return distance < playerDiameter;
+  // };
 
-  const checkIfTouchingGoal = (position: Position) => {
-    const goalCenter = levelConfig.goalPosition;
-    const distance = Math.sqrt(
-      Math.pow(position.x - (goalCenter.x + goalSize/2), 2) + 
-      Math.pow(position.y - (goalCenter.y + goalSize/2), 2)
-    );
-    return distance <= (playerRadius + goalSize/2);
-  };
+  // const checkIfTouchingGoal = (position: Position) => {
+  //   const goalCenter = levelConfig.goalPosition;
+  //   const distance = Math.sqrt(
+  //     Math.pow(position.x - (goalCenter.x + goalSize/2), 2) + 
+  //     Math.pow(position.y - (goalCenter.y + goalSize/2), 2)
+  //   );
+  //   return distance <= (playerRadius + goalSize/2);
+  // };
 
   // Game state management functions
-  const nextLevel = () => {
-    if (currentLevel < MAX_LEVEL) {
-      const newLevel = currentLevel + 1;
-      setCurrentLevel(newLevel);
-      const levelConfig = getLevel(newLevel);
-      setPlayer1Pos({ ...levelConfig.player1Start, vy: 0 });
-      setPlayer2Pos({ ...levelConfig.player2Start, vy: 0 });
-      setGameOver(false);
-      setLevelComplete(false);
-    }
-  };
+  // const nextLevel = () => {
+  //   if (currentLevel < MAX_LEVEL) {
+  //     const newLevel = currentLevel + 1;
+  //     setCurrentLevel(newLevel);
+  //     const levelConfig = getLevel(newLevel);
+  //     setPlayer1Pos({ ...levelConfig.player1Start, vy: 0 });
+  //     setPlayer2Pos({ ...levelConfig.player2Start, vy: 0 });
+  //     setGameOver(false);
+  //     setLevelComplete(false);
+  //   }
+  // };
 
   const resetLevel = () => {
     const levelConfig = getLevel(currentLevel);
