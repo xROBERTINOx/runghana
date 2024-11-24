@@ -1,20 +1,20 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getLevel, MAX_LEVEL } from '@/config/levels';
-import type { Position, Platform, Obstacle } from '@/types/game';
-import player1Image from '@/assets/player1.png';
-import player2Image from '@/assets/player2.png';
-import platformImage from '@/assets/platform1.png';
-import player1SpriteSheetWalking from '@/assets/player1Walking.png';
-import player2SpriteSheetWalking from '@/assets/player2Walking.png';
-import backgroundImage from '@/assets/background.png';
-import floorImage from '@/assets/floor1.png';
-import obstacleImage from '@/assets/obstacle1.png';
-import gameOverImage from '@/assets/GAMEOVER.png';
-import restartButtonImage from '@/assets/restartButton.png';
-import doorImage from '@/assets/door.png';
-import winScreenImage from '@/assets/winScreen.png';
+import React, { useState, useEffect, useRef } from "react";
+
+import { getLevel, MAX_LEVEL } from "@/config/levels";
+import type { Position } from "@/types/game";
+import player1Image from "@/assets/player1.png";
+import player2Image from "@/assets/player2.png";
+import platformImage from "@/assets/platform1.png";
+import player1SpriteSheetWalking from "@/assets/player1Walking.png";
+import player2SpriteSheetWalking from "@/assets/player2Walking.png";
+import backgroundImage from "@/assets/background.png";
+import floorImage from "@/assets/floor1.png";
+import obstacleImage from "@/assets/obstacle1.png";
+import gameOverImage from "@/assets/GAMEOVER.png";
+import restartButtonImage from "@/assets/restartButton.png";
+import doorImage from "@/assets/door.png";
+import winScreenImage from "@/assets/winScreen.png";
 
 
 const Game = () => {
@@ -41,8 +41,8 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
-  const [player1Direction, setPlayer1Direction] = useState<'left' | 'right'>('right');
-  const [player2Direction, setPlayer2Direction] = useState<'left' | 'right'>('right');
+  const [player1Direction, setPlayer1Direction] = useState<"left" | "right">("right");
+  const [player2Direction, setPlayer2Direction] = useState<"left" | "right">("right");
   const [player1IsMoving, setPlayer1IsMoving] = useState(false);
   const [player2IsMoving, setPlayer2IsMoving] = useState(false);
   const [player1CurrentFrame, setPlayer1CurrentFrame] = useState(0);
@@ -51,7 +51,6 @@ const Game = () => {
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
   const [isObstacleTouched, setIsObstacleTouched] = useState(false);
-
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -97,7 +96,7 @@ const Game = () => {
       };
       setImagesLoaded(true);
     }).catch(error => {
-      console.error('Error loading images:', error);
+      console.error("Error loading images:", error);
     });
   }, []);
 
@@ -124,7 +123,7 @@ const Game = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) return;
       
       ctx.imageSmoothingEnabled = false;
@@ -135,6 +134,7 @@ const Game = () => {
       if ((player1IsMoving || player2IsMoving) && currentTime - lastFrameUpdate > frameUpdateInterval) {
         setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
         setPlayer2CurrentFrame(prev => (prev + 1) % player2NumFrames);
+        setPlayer2IsMoving(false);
         setLastFrameUpdate(currentTime);
       }
 
@@ -142,7 +142,7 @@ const Game = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw background
-      // ctx.fillStyle = '#1F2937';
+      // ctx.fillStyle = "#1F2937";
       // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw platforms
@@ -207,9 +207,10 @@ const Game = () => {
           ctx.save();
           ctx.translate(obstacle.x, obstacle.y);
     
-          // Rotate the obstacle if it's touched
+          // Rotate the obstacle if it"s touched
           if (isObstacleTouched) {
             ctx.rotate((currentObstacleFrame / obstacleFrameCount) * Math.PI * 2);
+            setIsObstacleTouched(false);
           }
     
           ctx.drawImage(
@@ -234,7 +235,7 @@ const Game = () => {
       if (imagesRef.current.player1WalkingSprite && imagesRef.current.player1) {
         if (player1IsMoving) {
           ctx.save();
-          if (player1Direction === 'left') {
+          if (player1Direction === "left") {
             ctx.scale(-1, 1);
             ctx.translate(-player1Pos.x * 2, 0);
           }
@@ -252,7 +253,7 @@ const Game = () => {
           ctx.restore();
         } else {
           ctx.save();
-          if (player1Direction === 'left') {
+          if (player1Direction === "left") {
             ctx.scale(-1, 1);
             ctx.translate(-player1Pos.x * 2, 0);
           }
@@ -271,7 +272,7 @@ const Game = () => {
       if (imagesRef.current.player2WalkingSprite && imagesRef.current.player2) {
         if (player2IsMoving) {
           ctx.save();
-          if (player2Direction === 'left') {
+          if (player2Direction === "left") {
             ctx.scale(-1, 1);
             ctx.translate(-player2Pos.x * 2, 0);
           }
@@ -289,7 +290,7 @@ const Game = () => {
           ctx.restore();
         } else {
           ctx.save();
-          if (player2Direction === 'left') {
+          if (player2Direction === "left") {
             ctx.scale(-1, 1);
             ctx.translate(-player2Pos.x * 2, 0);
           }
@@ -313,8 +314,8 @@ const Game = () => {
         player1Pos.y,
         300
       );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      gradient.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+      gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
       ctx.fillStyle = gradient;
       ctx.fillRect(
         player1Pos.x - 300,
@@ -345,12 +346,12 @@ const Game = () => {
       });
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
@@ -411,15 +412,15 @@ const Game = () => {
           let isMoving = false;
   
           // Apply horizontal movement
-          if (keysPressed.has('d')) {
+          if (keysPressed.has("d")) {
             newPos.x += moveSpeed * deltaTime;
             isMoving = true;
-            setPlayer1Direction('right');
+            setPlayer1Direction("right");
           }
-          if (keysPressed.has('a')) {
+          if (keysPressed.has("a")) {
             newPos.x -= moveSpeed * deltaTime;
             isMoving = true;
-            setPlayer1Direction('left');
+            setPlayer1Direction("left");
           }
   
           setPlayer1IsMoving(isMoving);
@@ -433,7 +434,7 @@ const Game = () => {
           const onFloor = checkFloorCollisions(newPos);
           
           // Allow jumping if on either platform or floor
-          if ((onPlatform || onFloor) && keysPressed.has('w') && newPos.vy >= 0) {
+          if ((onPlatform || onFloor) && keysPressed.has("w") && newPos.vy >= 0) {
             newPos.vy = jumpForce;
           }
   
@@ -449,16 +450,16 @@ const Game = () => {
           const newPos = { ...prev };
           let isMoving = false;
         
-          // If 'a' or 'd' is pressed, move towards player 1
-          if (keysPressed.has('a') || keysPressed.has('d')) {
+          // If "a" or "d" is pressed, move towards player 1
+          if (keysPressed.has("a") || keysPressed.has("d")) {
             if (player2Pos.x < player1Pos.x) {
               newPos.x += moveSpeed * deltaTime;
               isMoving = true;
-              setPlayer2Direction('left');
+              setPlayer2Direction("left");
             } else if (player2Pos.x > player1Pos.x) {
               newPos.x -= moveSpeed * deltaTime;
               isMoving = true;
-              setPlayer2Direction('right');
+              setPlayer2Direction("right");
             }
           }
         
@@ -471,7 +472,7 @@ const Game = () => {
           const onFloor = checkFloorCollisions(newPos);
           
           // Allow jumping if on either platform or floor
-          if ((onPlatform || onFloor) && keysPressed.has('w') && newPos.vy >= 0) {
+          if ((onPlatform || onFloor) && keysPressed.has("w") && newPos.vy >= 0) {
             newPos.vy = jumpForce;
           }
   
@@ -528,7 +529,7 @@ const Game = () => {
     let onGround = false;
     
     for (const floor of levelConfig.floor) {
-      // Check if player is within the floor's x bounds
+      // Check if player is within the floor"s x bounds
       if (position.x + playerRadius > floor.x && 
           position.x - playerRadius < floor.x + floor.width) {
         
@@ -606,13 +607,13 @@ const Game = () => {
       <div className="text-center mb-4">
         <h2 className="text-2xl font-bold text-purple-600">Level {currentLevel}</h2>
         <p className="text-sm text-gray-600 mt-2">
-          YOU: WSAD to move and jump, don't let your shadow get you!
+          YOU: WSAD to move and jump, do not let your shadow get you!
         </p>
       </div>
       
       <div className="relative">
       <div className="absolute inset-0 bg-black opacity-40"></div>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+      <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.2)" }}>
   </div>
         <canvas
           ref={canvasRef}
@@ -624,21 +625,21 @@ const Game = () => {
             width: levelConfig.gameFieldWidth + "px", 
             height: levelConfig.gameFieldHeight + "px",
             backgroundImage: `url(${backgroundImage.src})`,
-            backgroundSize: 'cover'
+            backgroundSize: "cover"
           }}
         />
 
 {levelComplete && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+            <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.7)" }}>
             </div>
             <img
               src={winScreenImage.src}
               alt="Level Complete"
               style={{
-                width: '50%',
-                height: '50%',
-                objectFit: 'contain',
+                width: "50%",
+                height: "50%",
+                objectFit: "contain",
                 zIndex: 30 // Increase the z-index to bring the image to the front
               }}
             />
@@ -654,15 +655,15 @@ const Game = () => {
                 }}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg"
               >
-                {currentLevel < MAX_LEVEL ? 'Next Level' : 'Restart Game'}
+                {currentLevel < MAX_LEVEL ? "Next Level" : "Restart Game"}
               </button>
               <img
                 src={restartButtonImage.src}
                 alt="Restart Game"
                 style={{
-                  width: '100px', // Adjust the size as needed
-                  height: '100px', // Adjust the size as needed
-                  objectFit: 'contain'
+                  width: "100px", // Adjust the size as needed
+                  height: "100px", // Adjust the size as needed
+                  objectFit: "contain"
                 }}
               />
             </div>
@@ -671,30 +672,30 @@ const Game = () => {
 
 {gameOver && (
   <div className="absolute inset-0 flex items-center justify-center">
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.7)" }}>
     </div>
     <img
       src={gameOverImage.src}
       alt="Game Over"
       style={{
-        width: '50%',
-        height: '50%',
-        objectFit: 'contain',
+        width: "50%",
+        height: "50%",
+        objectFit: "contain",
         zIndex: 30 
       }}
     />
    <button
               onClick={resetGame}
               className="absolute bottom-10"
-              style={{ zIndex: 31, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
+              style={{ zIndex: 31, background: "none", border: "none" }} // Ensure the button is above the overlay and remove default styles
             >
               <img
                 src={restartButtonImage.src}
                 alt="Restart Game"
                 style={{
-                  width: '100px', // Adjust the size as needed
-                  height: '100px', // Adjust the size as needed
-                  objectFit: 'contain'
+                  width: "100px", // Adjust the size as needed
+                  height: "100px", // Adjust the size as needed
+                  objectFit: "contain"
                 }}
               />
             </button>
