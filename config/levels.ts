@@ -99,7 +99,7 @@ export const getLevel = (level: number): LevelConfig => {
         player2Start: { x: 1200, y: 750 },
         goalPosition: { x: 650, y: 50 },
         platforms: [
-          { x: 400, y: 800 },
+          { x: 400, y: 600 },
           { x: 800, y: 800 },
           { x: 200, y: 650 },
           { x: 200, y: 500 },

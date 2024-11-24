@@ -66,7 +66,7 @@ const Game = () => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
-  const [isObstacleTouched, setIsObstacleTouched] = useState(false);
+  // const [isObstacleTouched, setIsObstacleTouched] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
   const playerDiameter = 50;
@@ -132,9 +132,9 @@ const Game = () => {
     const frameHeight = 64;
     const player1NumFrames = 4;
     const player2NumFrames = 3;
-    const obstacleWidth = obstacleImage.width / 7;
-    const obstacleFrameCount = 7;
-    const currentObstacleFrame = 0;
+    // const obstacleWidth = obstacleImage.width / 7;
+    // const obstacleFrameCount = 7;
+    // const currentObstacleFrame = 0;
   
 
 
