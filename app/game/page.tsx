@@ -7,6 +7,7 @@ import player1Image from '@/assets/player1.png';
 import player2Image from '@/assets/player2.png';
 import platformImage from '@/assets/platform1.png';
 import player1SpriteSheetWalking from '@/assets/player1Walking.png';
+import player2SpriteSheetWalking from '@/assets/player2Walking.png';
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,7 +15,8 @@ const Game = () => {
     player1?: HTMLImageElement;
     player2?: HTMLImageElement;
     platform?: HTMLImageElement;
-    walkingSprite?: HTMLImageElement;
+    player1WalkingSprite?: HTMLImageElement;
+    player2WalkingSprite?: HTMLImageElement;
   }>({});
   
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -28,10 +30,12 @@ const Game = () => {
   const [levelComplete, setLevelComplete] = useState(false);
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
   const [player1Direction, setPlayer1Direction] = useState<'left' | 'right'>('right');
+  const [player2Direction, setPlayer2Direction] = useState<'left' | 'right'>('right');
   const [player1IsMoving, setPlayer1IsMoving] = useState(false);
-  const [currentFrame, setCurrentFrame] = useState(0);
+  const [player2IsMoving, setPlayer2IsMoving] = useState(false);
+  const [player1CurrentFrame, setPlayer1CurrentFrame] = useState(0);
+  const [player2CurrentFrame, setPlayer2CurrentFrame] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState(false);
-
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
 
@@ -59,13 +63,15 @@ const Game = () => {
       loadImage(player1Image.src),
       loadImage(player2Image.src),
       loadImage(platformImage.src),
-      loadImage(player1SpriteSheetWalking.src)
-    ]).then(([player1Img, player2Img, platformImg, walkingSpritesheet]) => {
+      loadImage(player1SpriteSheetWalking.src),
+      loadImage(player2SpriteSheetWalking.src)
+    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite]) => {
       imagesRef.current = {
         player1: player1Img,
         player2: player2Img,
         platform: platformImg,
-        walkingSprite: walkingSpritesheet
+        player1WalkingSprite: player1WalkingSprite,
+        player2WalkingSprite: player2WalkingSprite
       };
       setImagesLoaded(true);
     }).catch(error => {
@@ -73,15 +79,19 @@ const Game = () => {
     });
   }, []);
 
+
   // Main game loop
   useEffect(() => {
     if (!imagesLoaded) return;
 
     let animationFrameId: number;
     let lastTime = performance.now();
-    const frameWidth = player1SpriteSheetWalking.width / 4;
+    const player1FrameWidth = player1SpriteSheetWalking.width / 4;
+    const player2FrameWidth = player2SpriteSheetWalking.width / 3;
     const frameHeight = 64;
-    const numFrames = 4;
+    const player1NumFrames = 4;
+    const player2NumFrames = 3;
+
 
     const render = (currentTime: number) => {
       const canvas = canvasRef.current;
@@ -93,8 +103,9 @@ const Game = () => {
       const deltaTime = (currentTime - lastTime) / 16.67;
       lastTime = currentTime;
 
-      if (player1IsMoving && currentTime - lastFrameUpdate > frameUpdateInterval) {
-        setCurrentFrame(prev => (prev + 1) % numFrames);
+      if ((player1IsMoving || player2IsMoving) && currentTime - lastFrameUpdate > frameUpdateInterval) {
+        setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
+        setPlayer2CurrentFrame(prev => (prev + 1) % player2NumFrames);
         setLastFrameUpdate(currentTime);
       }
 
@@ -134,28 +145,26 @@ const Game = () => {
       );
 
       // Draw Player 1 (with walking animation)
-      if (imagesRef.current.walkingSprite && imagesRef.current.player1) {
+      if (imagesRef.current.player1WalkingSprite && imagesRef.current.player1) {
         if (player1IsMoving) {
-          // Draw walking animation
           ctx.save();
           if (player1Direction === 'left') {
             ctx.scale(-1, 1);
             ctx.translate(-player1Pos.x * 2, 0);
           }
           ctx.drawImage(
-            imagesRef.current.walkingSprite,
-            currentFrame * frameWidth,
+            imagesRef.current.player1WalkingSprite,
+            player1CurrentFrame * player1FrameWidth,
             0,
-            frameWidth,
+            player1FrameWidth,
             frameHeight,
             player1Pos.x - playerRadius - 15,
-            player1Pos.y - playerRadius - 15,
-            playerDiameter + 30,
+            player1Pos.y - playerRadius - 35,
+            playerDiameter + 10,
             playerDiameter + 30
           );
           ctx.restore();
         } else {
-          // Draw standing sprite
           ctx.save();
           if (player1Direction === 'left') {
             ctx.scale(-1, 1);
@@ -164,23 +173,49 @@ const Game = () => {
           ctx.drawImage(
             imagesRef.current.player1,
             player1Pos.x - playerRadius - 15,
-            player1Pos.y - playerRadius - 15,
-            playerDiameter + 30,
+            player1Pos.y - playerRadius - 35,
+            playerDiameter + 10,
             playerDiameter + 30
           );
           ctx.restore();
         }
       }
 
-      // Draw Player 2
-      if (imagesRef.current.player2) {
-        ctx.drawImage(
-          imagesRef.current.player2,
-          player2Pos.x - playerRadius,
-          player2Pos.y - playerRadius,
-          playerDiameter,
-          playerDiameter
-        );
+      // Draw Player 2 (with walking animation)
+      if (imagesRef.current.player2WalkingSprite && imagesRef.current.player2) {
+        if (player2IsMoving) {
+          ctx.save();
+          if (player2Direction === 'left') {
+            ctx.scale(-1, 1);
+            ctx.translate(-player2Pos.x * 2, 0);
+          }
+          ctx.drawImage(
+            imagesRef.current.player2WalkingSprite,
+            player2CurrentFrame * player2FrameWidth,
+            0,
+            player2FrameWidth,
+            frameHeight,
+            player2Pos.x - playerRadius - 15,
+            player2Pos.y - playerRadius - 35,
+            playerDiameter + 10,
+            playerDiameter + 50
+          );
+          ctx.restore();
+        } else {
+          ctx.save();
+          if (player2Direction === 'left') {
+            ctx.scale(-1, 1);
+            ctx.translate(-player2Pos.x * 2, 0);
+          }
+          ctx.drawImage(
+            imagesRef.current.player2,
+            player2Pos.x - playerRadius - 15,
+            player2Pos.y - playerRadius - 35,
+            playerDiameter + 10,
+            playerDiameter + 30
+          );
+          ctx.restore();
+        }
       }
 
       // Add lighting effect
@@ -207,7 +242,7 @@ const Game = () => {
 
     animationFrameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [player1Pos, player2Pos, levelConfig, player1IsMoving, currentFrame, player1Direction, imagesLoaded, lastFrameUpdate]);
+  }, [player1Pos, player2Pos, levelConfig, player1IsMoving, player2IsMoving, player1CurrentFrame, player2CurrentFrame, player1Direction, player2Direction, imagesLoaded, lastFrameUpdate]);
 
 
   // Keyboard controls
@@ -284,20 +319,31 @@ const Game = () => {
         // Update player 2
         setPlayer2Pos(prev => {
           const newPos = { ...prev };
+          let isMoving = false;
           
           if (keysPressed.has('d') || keysPressed.has('a')) {
-            if (player2Pos.x < player1Pos.x) {
+            if (newPos.x < player1Pos.x) {
               newPos.x += moveSpeed * deltaTime;
-            } else if (player2Pos.x > player1Pos.x) {
+              isMoving = true;
+              setPlayer2Direction('right');
+            } else if (newPos.x > player1Pos.x) {
               newPos.x -= moveSpeed * deltaTime;
+              isMoving = true;
+              setPlayer2Direction('left');
             }
           }
+
+          setPlayer2IsMoving(isMoving);
           
           newPos.vy += gravity * deltaTime;
           newPos.y += newPos.vy * deltaTime;
 
-          checkPlatformCollisions(newPos);
+          const onGround = checkPlatformCollisions(newPos);
           
+          if (onGround && keysPressed.has('ArrowUp') && newPos.vy >= 0) {
+            newPos.vy = jumpForce;
+          }
+
           newPos.x = Math.max(playerRadius, Math.min(levelConfig.gameFieldWidth - playerRadius, newPos.x));
           newPos.y = Math.max(playerRadius, Math.min(levelConfig.gameFieldHeight - playerRadius, newPos.y));
 
@@ -319,6 +365,7 @@ const Game = () => {
     animationFrameId = requestAnimationFrame(updatePhysics);
     return () => cancelAnimationFrame(animationFrameId);
   }, [keysPressed, gameOver, levelComplete, levelConfig, player1Pos.x, player2Pos.x]);
+
 
   // Rest of the utility functions remain the same...
   const checkPlatformCollisions = (position: Position & { vy: number }) => {
