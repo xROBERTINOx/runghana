@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-
+import { useRouter } from 'next/navigation';
 import { getLevel, MAX_LEVEL } from "@/config/levels";
 import type { Position } from "@/types/game";
 import player1Image from "@/assets/player1.png";
@@ -20,8 +20,14 @@ import resumeImage from "@/assets/resume.png";
 import nextLevelImage from "@/assets/nextLevel.png";
 
 
+
+
+
+
+
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const router = useRouter();
   const imagesRef = useRef<{
     player1?: HTMLImageElement;
     player2?: HTMLImageElement;
@@ -36,7 +42,12 @@ const Game = () => {
     resume?: HTMLImageElement;
   }>({});
   
-  const [currentLevel, setCurrentLevel] = useState(1);
+  const loadSavedLevel = () => {
+    return Number(localStorage.getItem('currentLevel')) || 1;
+  };
+
+  const [currentLevel, setCurrentLevel] = useState(loadSavedLevel());
+
   const [player1Pos, setPlayer1Pos] = useState<Position & { vy: number }>(
     { ...getLevel(1).player1Start, vy: 0 }
   );
@@ -217,7 +228,7 @@ const Game = () => {
       const gradient4door = ctx.createRadialGradient(
         levelConfig.doorPosition.x,
         levelConfig.doorPosition.y,
-        0,
+        100,
         levelConfig.doorPosition.x,
         levelConfig.doorPosition.y,
         300
@@ -236,29 +247,22 @@ const Game = () => {
       // Draw obstacles
       levelConfig.obstacles.forEach((obstacle) => {
         if (imagesRef.current.obstacle) {
-          ctx.save();
-          ctx.translate(obstacle.x, obstacle.y);
-    
-          // Rotate the obstacle if it"s touched
-          if (isObstacleTouched) {
-            ctx.rotate((currentObstacleFrame / obstacleFrameCount) * Math.PI * 2);
-            setIsObstacleTouched(false);
-          }
-    
+          const frameWidth = obstacleImage.width / 7; // Image divided into 4 frames
           ctx.drawImage(
             imagesRef.current.obstacle,
-            currentObstacleFrame * obstacleWidth,
+            2 * frameWidth, // Third frame (index 2)
             0,
-            obstacleWidth,
+            frameWidth,
             obstacleImage.height,
-            -obstacle.size / 2,
-            -obstacle.size / 2,
+            obstacle.x,
+            obstacle.y,
             obstacle.size,
             obstacle.size
           );
-          ctx.restore();
         }
+    
       });
+    
     
       
 
@@ -603,9 +607,9 @@ const Game = () => {
 
   const resetGame = () => {
     setCurrentLevel(1);
-    const levelConfig = getLevel(1);
-    setPlayer1Pos({ ...levelConfig.player1Start, vy: 0 });
-    setPlayer2Pos({ ...levelConfig.player2Start, vy: 0 });
+    localStorage.setItem('currentLevel', '1');
+    setPlayer1Pos({ ...getLevel(1).player1Start, vy: 0 });
+    setPlayer2Pos({ ...getLevel(1).player2Start, vy: 0 });
     setGameOver(false);
     setLevelComplete(false);
   };
@@ -654,8 +658,9 @@ const Game = () => {
       <button
         onClick={() => {
           if (currentLevel < MAX_LEVEL) {
-            setCurrentLevel(currentLevel + 1);
-            resetLevel();
+          setCurrentLevel(currentLevel + 1);
+          localStorage.setItem('currentLevel', (currentLevel + 1).toString());
+          resetLevel();
           } else {
             resetGame();
           }
@@ -747,6 +752,13 @@ const Game = () => {
   />
 </button>
 
+<button
+  onClick={() => router.push('/menu')}
+  className="absolute top-4 right-20"
+  style={{ zIndex: 31, background: 'none', border: 'none', color: 'white' }} // Ensure the button is above the overlay and remove default styles
+>
+  Menu
+</button>
     </div>
 
     
