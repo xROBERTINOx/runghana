@@ -54,7 +54,6 @@ const Game = () => {
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
-  const goalSize = 40;
   const gravity = 0.8;
   const jumpForce = -15;
   const moveSpeed = 5;
@@ -107,7 +106,6 @@ const Game = () => {
     if (!imagesLoaded) return;
 
     let animationFrameId: number;
-    let lastTime = performance.now();
     const player1FrameWidth = player1SpriteSheetWalking.width / 4;
     const player2FrameWidth = player2SpriteSheetWalking.width / 3;
     const frameHeight = 64;
