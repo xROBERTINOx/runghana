@@ -127,7 +127,7 @@ const Game = () => {
       ctx.imageSmoothingEnabled = false;
 
       // const deltaTime = (currentTime - lastTime) / 16.67;
-      lastTime = currentTime;
+      // lastTime = currentTime;
 
       if ((player1IsMoving || player2IsMoving) && currentTime - lastFrameUpdate > frameUpdateInterval) {
         setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
