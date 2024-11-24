@@ -17,6 +17,7 @@ import doorImage from "@/assets/door.png";
 import winScreenImage from "@/assets/winScreen.png";
 import pauseImage from "@/assets/pause.png";
 import resumeImage from "@/assets/resume.png";
+import nextLevelImage from "@/assets/nextLevel.png";
 
 
 const Game = () => {
@@ -592,36 +593,6 @@ const Game = () => {
   };
 
 
-
-  // const checkIfTouching = (pos1: Position, pos2: Position) => {
-  //   const distance = Math.sqrt(
-  //     Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2)
-  //   );
-  //   return distance < playerDiameter;
-  // };
-
-  // const checkIfTouchingGoal = (position: Position) => {
-  //   const goalCenter = levelConfig.goalPosition;
-  //   const distance = Math.sqrt(
-  //     Math.pow(position.x - (goalCenter.x + goalSize/2), 2) + 
-  //     Math.pow(position.y - (goalCenter.y + goalSize/2), 2)
-  //   );
-  //   return distance <= (playerRadius + goalSize/2);
-  // };
-
-  // Game state management functions
-  // const nextLevel = () => {
-  //   if (currentLevel < MAX_LEVEL) {
-  //     const newLevel = currentLevel + 1;
-  //     setCurrentLevel(newLevel);
-  //     const levelConfig = getLevel(newLevel);
-  //     setPlayer1Pos({ ...levelConfig.player1Start, vy: 0 });
-  //     setPlayer2Pos({ ...levelConfig.player2Start, vy: 0 });
-  //     setGameOver(false);
-  //     setLevelComplete(false);
-  //   }
-  // };
-
   const resetLevel = () => {
     const levelConfig = getLevel(currentLevel);
     setPlayer1Pos({ ...levelConfig.player1Start, vy: 0 });
@@ -689,29 +660,36 @@ const Game = () => {
             resetGame();
           }
         }}
-        className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+        style={{ zIndex: 50, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
       >
-        {currentLevel < MAX_LEVEL ? 'Next Level' : 'Restart Game'}
+        <img
+          src={nextLevelImage.src}
+          alt="Next Level"
+          style={{
+            width: '100px', // Adjust the size as needed
+            height: '100px', // Adjust the size as needed
+            objectFit: 'contain'
+          }}
+        />
       </button>
       <button
         onClick={resetGame}
         className="absolute bottom-10"
-        style={{ zIndex: 50 }} // Ensure the button is above the overlay
+        style={{ zIndex: 50, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
       >
         <img
           src={restartButtonImage.src}
           alt="Restart Game"
           style={{
-            width: "100px",
-            height: "100px",
-            objectFit: "contain"
+            width: '100px',
+            height: '100px',
+            objectFit: 'contain'
           }}
         />
       </button>
     </div>
   </div>
-)
-}
+)}
 
 {gameOver && (
   <div className="absolute inset-0 flex items-center justify-center">
