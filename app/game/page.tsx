@@ -203,14 +203,33 @@ const Game = () => {
       
       //draw door
       if (imagesRef.current.door) {
+        const bounceOffset = Math.sin(currentTime / 500) * 10; // Adjust the speed and height of the bounce
         ctx.drawImage(
           imagesRef.current.door,
           levelConfig.doorPosition.x,
-          levelConfig.doorPosition.y,
-          100, // door width
-          120 // door height
+          levelConfig.doorPosition.y + bounceOffset,
+          50, // door width
+          100 // door height
         );
       }
+
+      const gradient4door = ctx.createRadialGradient(
+        levelConfig.doorPosition.x,
+        levelConfig.doorPosition.y,
+        0,
+        levelConfig.doorPosition.x,
+        levelConfig.doorPosition.y,
+        300
+      );
+      gradient4door.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+      gradient4door.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = gradient4door;
+      ctx.fillRect(
+        levelConfig.doorPosition.x - 300,
+        levelConfig.doorPosition.y - 300,
+        600,
+        600
+      );
 
 
       // Draw obstacles
