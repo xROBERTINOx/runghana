@@ -15,6 +15,8 @@ import gameOverImage from "@/assets/GAMEOVER.png";
 import restartButtonImage from "@/assets/restartButton.png";
 import doorImage from "@/assets/door.png";
 import winScreenImage from "@/assets/winScreen.png";
+import pauseImage from "@/assets/pause.png";
+import resumeImage from "@/assets/resume.png";
 
 
 const Game = () => {
@@ -29,6 +31,8 @@ const Game = () => {
     obstacle?: HTMLImageElement;
     door?: HTMLImageElement;
     winScreen?: HTMLImageElement;
+    pause?: HTMLImageElement;
+    resume?: HTMLImageElement;
   }>({});
   
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -51,6 +55,7 @@ const Game = () => {
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
   const [isObstacleTouched, setIsObstacleTouched] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -81,7 +86,9 @@ const Game = () => {
       loadImage(obstacleImage.src),
       loadImage(doorImage.src),
       loadImage(winScreenImage.src),
-    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite, floor, obstacle, doorImg, winScreenImg]) => {
+      loadImage(pauseImage.src),
+      loadImage(resumeImage.src),
+    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite, floor, obstacle, doorImg, winScreenImg, pauseImg, resumeImg]) => {
       imagesRef.current = {
         player1: player1Img,
         player2: player2Img,
@@ -92,6 +99,8 @@ const Game = () => {
         obstacle: obstacle,
         door: doorImg,
         winScreen: winScreenImg,
+        pause: pauseImg,
+        resume: resumeImg,
       };
       setImagesLoaded(true);
     }).catch(error => {
@@ -125,6 +134,11 @@ const Game = () => {
       if (!ctx) return;
       
       ctx.imageSmoothingEnabled = false;
+
+      if (isPaused) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
 
       // const deltaTime = (currentTime - lastTime) / 16.67;
       // lastTime = currentTime;
@@ -400,6 +414,11 @@ const Game = () => {
     let lastTime = performance.now();
   
     const updatePhysics = (currentTime: number) => {
+      if (isPaused) {
+        animationFrameId = requestAnimationFrame(updatePhysics);
+        return;
+      }
+
       const deltaTime = (currentTime - lastTime) / 16.67;
       lastTime = currentTime;
   
@@ -628,45 +647,52 @@ const Game = () => {
         />
 
 {levelComplete && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.7)" }}>
-            </div>
-            <img
-              src={winScreenImage.src}
-              alt="Level Complete"
-              style={{
-                width: "50%",
-                height: "50%",
-                objectFit: "contain",
-                zIndex: 30 // Increase the z-index to bring the image to the front
-              }}
-            />
-            <div className="absolute bottom-10 space-x-4" style={{ zIndex: 31 }}>
-              <button
-                onClick={() => {
-                  if (currentLevel < MAX_LEVEL) {
-                    setCurrentLevel(currentLevel + 1);
-                    resetLevel();
-                  } else {
-                    resetGame();
-                  }
-                }}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg"
-              >
-                {currentLevel < MAX_LEVEL ? "Next Level" : "Restart Game"}
-              </button>
-              <img
-                src={restartButtonImage.src}
-                alt="Restart Game"
-                style={{
-                  width: "100px", // Adjust the size as needed
-                  height: "100px", // Adjust the size as needed
-                  objectFit: "contain"
-                }}
-              />
-            </div>
-          </div>
-        )}
+  <div className="absolute inset-0 flex items-center justify-center">
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+    </div>
+    <img
+      src={winScreenImage.src}
+      alt="Level Complete"
+      style={{
+        width: '50%',
+        height: '50%',
+        objectFit: 'contain',
+        zIndex: 30
+      }}
+    />
+    <div className="absolute bottom-10 space-x-4" style={{ zIndex: 31 }}>
+      <button
+        onClick={() => {
+          if (currentLevel < MAX_LEVEL) {
+            setCurrentLevel(currentLevel + 1);
+            resetLevel();
+          } else {
+            resetGame();
+          }
+        }}
+        className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+      >
+        {currentLevel < MAX_LEVEL ? 'Next Level' : 'Restart Game'}
+      </button>
+      <button
+        onClick={resetGame}
+        className="absolute bottom-10"
+        style={{ zIndex: 50 }} // Ensure the button is above the overlay
+      >
+        <img
+          src={restartButtonImage.src}
+          alt="Restart Game"
+          style={{
+            width: "100px",
+            height: "100px",
+            objectFit: "contain"
+          }}
+        />
+      </button>
+    </div>
+  </div>
+)
+}
 
 {gameOver && (
   <div className="absolute inset-0 flex items-center justify-center">
@@ -707,7 +733,26 @@ const Game = () => {
           </div>
         )}
       </div>
+
+      <button
+  onClick={()=>setIsPaused(!isPaused)}
+  className="absolute top-4 right-4"
+  style={{ zIndex: 31, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
+>
+  <img
+    src={isPaused ? resumeImage.src : pauseImage.src}
+    alt={isPaused ? 'Resume' : 'Pause'}
+    style={{
+      width: '50px', // Adjust the size as needed
+      height: '50px', // Adjust the size as needed
+      objectFit: 'contain'
+    }}
+  />
+</button>
+
     </div>
+
+    
   );
 };
 
