@@ -419,11 +419,13 @@ const Game = () => {
         }
       });
 
+
+      //check if touching door
       if (
-        player1Pos.x < levelConfig.doorPosition.x + 50 &&
-        player1Pos.x + playerDiameter > levelConfig.doorPosition.x &&
-        player1Pos.y < levelConfig.doorPosition.y + 50 &&
-        player1Pos.y + playerDiameter > levelConfig.doorPosition.y
+        player1Pos.x < levelConfig.doorPosition.x + 20 &&
+        player1Pos.x + 20 > levelConfig.doorPosition.x &&
+        player1Pos.y < levelConfig.doorPosition.y + 100 &&
+        player1Pos.y + 100 > levelConfig.doorPosition.y
       ) {
         setLevelComplete(true);
       }
