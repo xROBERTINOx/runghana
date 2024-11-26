@@ -20,6 +20,7 @@ import resumeImage from "@/assets/resume.png";
 import nextLevelImage from "@/assets/nextLevel.png";
 import Cookies from 'js-cookie';
 import menuImage from '@/assets/menu.png';
+import { createKeyboardControls } from "@/components/keyboardControls";
 
 
 
@@ -391,17 +392,7 @@ const Game = () => {
 
   // Keyboard controls
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      setKeysPressed(prev => new Set(prev).add(e.key));
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      setKeysPressed(prev => {
-        const next = new Set(prev);
-        next.delete(e.key);
-        return next;
-      });
-    };
+    const { handleKeyDown, handleKeyUp } = createKeyboardControls(setKeysPressed);
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -411,6 +402,7 @@ const Game = () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
+
 
   // Physics update loop
   useEffect(() => {
