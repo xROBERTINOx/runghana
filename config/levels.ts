@@ -100,7 +100,7 @@ export const getLevel = (level: number): LevelConfig => {
         goalPosition: { x: 650, y: 50 },
         platforms: [
           { x: 400, y: 800 },
-          { x: 800, y: 600 },
+          { x: 900, y: 600 },
           { x: 200, y: 650 },
           { x: 200, y: 500 },
           { x: 1100, y: 500 },
