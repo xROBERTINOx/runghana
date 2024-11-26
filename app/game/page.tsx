@@ -70,13 +70,8 @@ const Game = () => {
 
 
   //useeffect for cookies
-  useEffect(() => {
-    const retVal = Number(Cookies.get('currentLevel') || 1);
-    setCurrentLevel(retVal);
-  }, []);
-
-  if (!currentLevel) return null;
-
+  
+  
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -86,8 +81,13 @@ const Game = () => {
   
   const levelConfig = getLevel(currentLevel);
 
-  // Load images
+  
   useEffect(() => {
+    //load cookies
+    const retVal = Number(Cookies.get('currentLevel') || 1);
+    setCurrentLevel(retVal);
+    
+    //load images
     const loadImage = (src: string): Promise<HTMLImageElement> => {
       return new Promise((resolve, reject) => {
         const img = new Image();
