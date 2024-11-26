@@ -425,11 +425,13 @@ const Game = () => {
       ) {
         setLevelComplete(true);
       }
-      if (
-        player2Pos.x < levelConfig.doorPosition.x + 50 &&
-        player2Pos.x + playerDiameter > levelConfig.doorPosition.x &&
-        player2Pos.y < levelConfig.doorPosition.y + 100 &&
-        player2Pos.y + playerDiameter > levelConfig.doorPosition.y
+      
+       //check if touching door
+       if (
+        player1Pos.x < levelConfig.doorPosition.x + 20 &&
+        player1Pos.x + 20 > levelConfig.doorPosition.x &&
+        player1Pos.y < levelConfig.doorPosition.y + 100 &&
+        player1Pos.y + 100 > levelConfig.doorPosition.y
       ) {
         setLevelComplete(true);
       }
