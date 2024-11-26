@@ -19,6 +19,7 @@ import pauseImage from "@/assets/pause.png";
 import resumeImage from "@/assets/resume.png";
 import nextLevelImage from "@/assets/nextLevel.png";
 import Cookies from 'js-cookie';
+import menuImage from '@/assets/menu.png';
 
 
 
@@ -41,6 +42,7 @@ const Game = () => {
     winScreen?: HTMLImageElement;
     pause?: HTMLImageElement;
     resume?: HTMLImageElement;
+    menu?: HTMLImageElement;
   }>({});
   
   
@@ -109,7 +111,8 @@ const Game = () => {
       loadImage(winScreenImage.src),
       loadImage(pauseImage.src),
       loadImage(resumeImage.src),
-    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite, floor, obstacle, doorImg, winScreenImg, pauseImg, resumeImg]) => {
+      loadImage(menuImage.src),
+    ]).then(([player1Img, player2Img, platformImg, player1WalkingSprite, player2WalkingSprite, floor, obstacle, doorImg, winScreenImg, pauseImg, resumeImg, menuImg]) => {
       imagesRef.current = {
         player1: player1Img,
         player2: player2Img,
@@ -122,6 +125,7 @@ const Game = () => {
         winScreen: winScreenImg,
         pause: pauseImg,
         resume: resumeImg,
+        menu: menuImg,
       };
       setImagesLoaded(true);
     }).catch(error => {
@@ -769,7 +773,14 @@ const Game = () => {
   className="absolute top-4 right-20"
   style={{ zIndex: 31, background: 'none', border: 'none', color: 'white' }} // Ensure the button is above the overlay and remove default styles
 >
-  Menu
+  <img
+    src={menuImage.src}
+    style={{
+      width: '50px',
+      height: '50px',
+      objectFit: 'contain'
+    }}
+  />
 </button>
 
 
