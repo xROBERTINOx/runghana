@@ -70,8 +70,7 @@ const Game = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [obstacleCurrentFrame, setObstacleCurrentFrame] = useState(0);
-  const obstacleFrameWidth = obstacleImage.width / 7;
-  const obstacleNumFrames = 7;
+  
 
 
   //useeffect for cookies
