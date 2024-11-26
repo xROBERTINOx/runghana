@@ -18,6 +18,7 @@ import winScreenImage from "@/assets/winScreen.png";
 import pauseImage from "@/assets/pause.png";
 import resumeImage from "@/assets/resume.png";
 import nextLevelImage from "@/assets/nextLevel.png";
+import Cookies from 'js-cookie';
 
 
 
@@ -42,11 +43,8 @@ const Game = () => {
     resume?: HTMLImageElement;
   }>({});
   
-  const loadSavedLevel = () => {
-    return Number(localStorage.getItem('currentLevel')) || 1;
-  };
+  
 
-  const [currentLevel, setCurrentLevel] = useState(loadSavedLevel());
 
   const [player1Pos, setPlayer1Pos] = useState<Position & { vy: number }>(
     { ...getLevel(1).player1Start, vy: 0 }
@@ -68,6 +66,17 @@ const Game = () => {
   const frameUpdateInterval = 100;
   // const [isObstacleTouched, setIsObstacleTouched] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1);
+
+
+  //useeffect for cookies
+  useEffect(() => {
+    const retVal = Number(Cookies.get('currentLevel') || 1);
+    setCurrentLevel(retVal);
+  }, []);
+
+  if (!currentLevel) return null;
+
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -132,10 +141,9 @@ const Game = () => {
     const frameHeight = 64;
     const player1NumFrames = 4;
     const player2NumFrames = 3;
-    // const obstacleWidth = obstacleImage.width / 7;
-    // const obstacleFrameCount = 7;
-    // const currentObstacleFrame = 0;
-  
+    
+
+
 
 
     const render = (currentTime: number) => {
@@ -425,7 +433,7 @@ const Game = () => {
       ) {
         setLevelComplete(true);
       }
-      
+
        //check if touching door
        if (
         player1Pos.x < levelConfig.doorPosition.x + 20 &&
@@ -609,7 +617,7 @@ const Game = () => {
 
   const resetGame = () => {
     setCurrentLevel(1);
-    localStorage.setItem('currentLevel', '1');
+    Cookies.set('currentLevel', '1');
     setPlayer1Pos({ ...getLevel(1).player1Start, vy: 0 });
     setPlayer2Pos({ ...getLevel(1).player2Start, vy: 0 });
     setGameOver(false);
@@ -661,7 +669,7 @@ const Game = () => {
         onClick={() => {
           if (currentLevel < MAX_LEVEL) {
           setCurrentLevel(currentLevel + 1);
-          localStorage.setItem('currentLevel', (currentLevel + 1).toString());
+          Cookies.set('currentLevel', (currentLevel + 1).toString());
           resetLevel();
           } else {
             resetGame();
@@ -712,21 +720,23 @@ const Game = () => {
         zIndex: 30 
       }}
     />
-   <button
-              onClick={resetGame}
-              className="absolute bottom-10"
-              style={{ zIndex: 31, background: "none", border: "none" }} // Ensure the button is above the overlay and remove default styles
-            >
-              <img
-                src={restartButtonImage.src}
-                alt="Restart Game"
-                style={{
-                  width: "100px", // Adjust the size as needed
-                  height: "100px", // Adjust the size as needed
-                  objectFit: "contain"
-                }}
-              />
-            </button>
+   
+      <button
+        onClick={resetLevel}
+        className="absolute bottom-10"
+        style={{ zIndex: 31, background: "none", border: "none" }} // Ensure the button is above the overlay and remove default styles
+      >
+      <img
+        src={restartButtonImage.src}
+        alt="Restart Level"
+        style={{
+          width: "100px", 
+          height: "100px", 
+          objectFit: "contain"
+        }}
+      />
+      </button>
+    
   </div>
 )}
 

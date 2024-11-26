@@ -2,12 +2,13 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css'; // Import the CSS module
+import Cookies from 'js-cookie';
 
 export default function LevelMenu() {
     const router = useRouter();
 
     const handleLevelSelect = (level: number) => {
-        localStorage.setItem('currentLevel', level.toString());
+        Cookies.set('currentLevel', level.toString());
         router.push('/game');
     };
 
