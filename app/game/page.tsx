@@ -69,6 +69,9 @@ const Game = () => {
   // const [isObstacleTouched, setIsObstacleTouched] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
+  const [obstacleCurrentFrame, setObstacleCurrentFrame] = useState(0);
+  const obstacleFrameWidth = obstacleImage.width / 7;
+  const obstacleNumFrames = 7;
 
 
   //useeffect for cookies
@@ -145,6 +148,8 @@ const Game = () => {
     const frameHeight = 64;
     const player1NumFrames = 4;
     const player2NumFrames = 3;
+    const obstacleFrameWidth = obstacleImage.width / 7;
+    const obstacleNumFrames = 7;
     
 
 
@@ -167,12 +172,17 @@ const Game = () => {
       // const deltaTime = (currentTime - lastTime) / 16.67;
       // lastTime = currentTime;
 
-      if ((player1IsMoving || player2IsMoving) && currentTime - lastFrameUpdate > frameUpdateInterval) {
+      if ((player1IsMoving || player2IsMoving || true) && currentTime - lastFrameUpdate > frameUpdateInterval) {
         setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
         setPlayer2CurrentFrame(prev => (prev + 1) % player2NumFrames);
+        
+        // Add obstacle frame animation
+        setObstacleCurrentFrame(prev => (prev + 1) % obstacleNumFrames);
+        
         setPlayer2IsMoving(false);
         setLastFrameUpdate(currentTime);
       }
+    
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -259,12 +269,11 @@ const Game = () => {
       // Draw obstacles
       levelConfig.obstacles.forEach((obstacle) => {
         if (imagesRef.current.obstacle) {
-          const frameWidth = obstacleImage.width / 7; // Image divided into 4 frames
           ctx.drawImage(
             imagesRef.current.obstacle,
-            2 * frameWidth, // Third frame (index 2)
+            obstacleCurrentFrame * obstacleFrameWidth, // Animated frame
             0,
-            frameWidth,
+            obstacleFrameWidth,
             obstacleImage.height,
             obstacle.x,
             obstacle.y,
@@ -272,6 +281,7 @@ const Game = () => {
             obstacle.size
           );
         }
+      
     
       });
     
