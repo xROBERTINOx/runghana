@@ -95,17 +95,18 @@ export const getLevel = (level: number): LevelConfig => {
 
     case 5:
       return {
-        player1Start: { x: 50, y: 750 },
-        player2Start: { x: 1200, y: 750 },
+        player1Start: { x: 100, y: 750 },
+        player2Start: { x: 400, y: 800 },
         goalPosition: { x: 650, y: 50 },
         platforms: [
           { x: 400, y: 800 },
           { x: 900, y: 200 },
-          { x: 200, y: 650 },
+          { x: 150, y: 650 },
           { x: 200, y: 500 },
           { x: 1100, y: 500 },
           { x: 400, y: 350 },
           { x: 600, y: 200 },
+          { x: 400, y: 600 },
         ],
         floor: [{ x: 0, y: 830, width: 1300, height: 40 }],
         gameFieldWidth: 1300,
