@@ -25,6 +25,7 @@ import { createKeyboardControls } from "@/components/keyboardControls";
 import { updatePlayer1 } from "@/components/updatePlayer1";
 import { updatePlayer2 } from "@/components/updatePlayer2"; //NEED TO UDPATE ALG FOR PLAYER 2 CONST MOVEMENT TOWARD PLAYER
 import { checkPlayer1Collisions } from "@/components/player1Checks";
+import { drawPlatforms, drawFloor, drawDoor, drawObstacles, drawPlayer1, drawPlayer2 } from "@/components/drawItems";
 
 
 
@@ -74,12 +75,6 @@ const Game = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [obstacleCurrentFrame, setObstacleCurrentFrame] = useState(0);
-  
-
-
-  //useeffect for cookies
-  
-  
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -172,9 +167,6 @@ const Game = () => {
         return;
       }
 
-      // const deltaTime = (currentTime - lastTime) / 16.67;
-      // lastTime = currentTime;
-
       if ((player1IsMoving || player2IsMoving || true) && currentTime - lastFrameUpdate > frameUpdateInterval) {
         setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
         setPlayer2CurrentFrame(prev => (prev + 1) % player2NumFrames);
@@ -190,181 +182,69 @@ const Game = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw background
-      // ctx.fillStyle = "#1F2937";
-      // ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       // Draw platforms
-      levelConfig.platforms.forEach(platform => {
-        if (imagesRef.current.platform) {
-          ctx.drawImage(
-            imagesRef.current.platform,
-            platform.x,
-            platform.y,
-            platform.width || 120,
-            platform.height || 50
-          );
-        }
-      });
+      drawPlatforms({
+        ctx,
+        levelConfig,
+        imagesRef,
+      })
       
       // Draw floor
-      // Draw floor
-      levelConfig.floor.forEach(floor => {
-        const floorImage = imagesRef.current.floor;
-        if (floorImage) {
-          // Get the natural width of the floor image
-          const imageWidth = floorImage.width;
-          // Calculate how many times we need to repeat the image
-          const repetitions = Math.ceil(floor.width / imageWidth);
-          
-          // Draw the floor image repeatedly
-          for (let i = 0; i < repetitions; i++) {
-            const currentX = floor.x + (i * imageWidth);
-            const remainingWidth = floor.width - (i * imageWidth);
-            const width = Math.min(imageWidth, remainingWidth);
-            
-            ctx.drawImage(
-              floorImage,
-              0, // source x
-              0, // source y
-              width, // source width
-              floorImage.height, // source height
-              currentX, // destination x
-              floor.y, // destination y
-              width, // destination width
-              floor.height // destination height
-            );
-          }
-        }
-      });
+      drawFloor({
+        ctx,
+        levelConfig,
+        imagesRef,
+      })
       
       //draw door
-      if (imagesRef.current.door) {
-        const bounceOffset = Math.sin(currentTime / 500) * 10; // Adjust the speed and height of the bounce
-        ctx.drawImage(
-          imagesRef.current.door,
-          levelConfig.doorPosition.x,
-          levelConfig.doorPosition.y + bounceOffset,
-          50, // door width
-          100 // door height
-        );
-      }
-
-      const gradient4door = ctx.createRadialGradient(
-        levelConfig.doorPosition.x,
-        levelConfig.doorPosition.y,
-        100,
-        levelConfig.doorPosition.x,
-        levelConfig.doorPosition.y,
-        300
-      );
-      gradient4door.addColorStop(0, "rgba(255, 255, 255, 0.2)");
-      gradient4door.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = gradient4door;
-      ctx.fillRect(
-        levelConfig.doorPosition.x - 300,
-        levelConfig.doorPosition.y - 300,
-        600,
-        600
-      );
-
+     drawDoor({
+      ctx,
+      levelConfig,
+      imagesRef,
+      currentTime: currentTime
+     })
 
       // Draw obstacles
-      levelConfig.obstacles.forEach((obstacle) => {
-        if (imagesRef.current.obstacle) {
-          ctx.drawImage(
-            imagesRef.current.obstacle,
-            obstacleCurrentFrame * obstacleFrameWidth, // Animated frame
-            0,
-            obstacleFrameWidth,
-            obstacleImage.height,
-            obstacle.x,
-            obstacle.y,
-            obstacle.size,
-            obstacle.size
-          );
-        }
-      
-    
+      drawObstacles({
+        ctx,
+        levelConfig,
+        imagesRef,
+        obstacleFrameWidth,
+        obstacleCurrentFrame: obstacleCurrentFrame
       });
-    
-    
       
 
       // Draw Player 1 (with walking animation)
       
-      if (imagesRef.current.player1WalkingSprite && imagesRef.current.player1) {
-        if (player1IsMoving) {
-          ctx.save();
-          if (player1Direction === "left") {
-            ctx.scale(-1, 1);
-            ctx.translate(-player1Pos.x * 2, 0);
-          }
-          ctx.drawImage(
-            imagesRef.current.player1WalkingSprite,
-            player1CurrentFrame * player1FrameWidth,
-            0,
-            player1FrameWidth,
-            frameHeight,
-            player1Pos.x - playerRadius - 15,
-            player1Pos.y - playerRadius - 35,
-            playerDiameter + 10,
-            playerDiameter + 30
-          );
-          ctx.restore();
-        } else {
-          ctx.save();
-          if (player1Direction === "left") {
-            ctx.scale(-1, 1);
-            ctx.translate(-player1Pos.x * 2, 0);
-          }
-          ctx.drawImage(
-            imagesRef.current.player1,
-            player1Pos.x - playerRadius - 15,
-            player1Pos.y - playerRadius - 35,
-            playerDiameter + 10,
-            playerDiameter + 30
-          );
-          ctx.restore();
-        }
-      }
-
+      drawPlayer1({
+        ctx,
+        imagesRef,
+        levelConfig,
+        player1Pos,
+        player1IsMoving,
+        player1Direction,
+        player1CurrentFrame,
+        player1FrameWidth,
+        frameHeight,
+        playerRadius,
+        playerDiameter
+      });
+  
       // Draw Player 2 (with walking animation)
-      if (imagesRef.current.player2WalkingSprite && imagesRef.current.player2) {
-        if (player2IsMoving) {
-          ctx.save();
-          if (player2Direction === "left") {
-            ctx.scale(-1, 1);
-            ctx.translate(-player2Pos.x * 2, 0);
-          }
-          ctx.drawImage(
-            imagesRef.current.player2WalkingSprite,
-            player2CurrentFrame * player2FrameWidth,
-            0,
-            player2FrameWidth,
-            frameHeight,
-            player2Pos.x - playerRadius - 15,
-            player2Pos.y - playerRadius - 35,
-            playerDiameter + 10,
-            playerDiameter + 50
-          );
-          ctx.restore();
-        } else {
-          ctx.save();
-          if (player2Direction === "left") {
-            ctx.scale(-1, 1);
-            ctx.translate(-player2Pos.x * 2, 0);
-          }
-          ctx.drawImage(
-            imagesRef.current.player2,
-            player2Pos.x - playerRadius - 15,
-            player2Pos.y - playerRadius - 35,
-            playerDiameter + 10,
-            playerDiameter + 30
-          );
-          ctx.restore();
-        }
-      }
+      drawPlayer2({
+        ctx,
+        imagesRef,
+        levelConfig,
+        player2Pos,
+        player2IsMoving,
+        player2Direction,
+        player2CurrentFrame,
+        player2FrameWidth,
+        frameHeight,
+        playerRadius,
+        playerDiameter
+      });
+      
 
       // Add lighting effect
       const gradient = ctx.createRadialGradient(
