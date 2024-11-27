@@ -21,7 +21,10 @@ import nextLevelImage from "@/assets/nextLevel.png";
 import Cookies from 'js-cookie';
 import menuImage from '@/assets/menu.png';
 import { createKeyboardControls } from "@/components/keyboardControls";
-
+// import { physicsController } from "@/components/physicsController";
+import { updatePlayer1 } from "@/components/updatePlayer1";
+import { updatePlayer2 } from "@/components/updatePlayer2"; //NEED TO UDPATE ALG FOR PLAYER 2 CONST MOVEMENT TOWARD PLAYER
+import { checkPlayer1Collisions } from "@/components/player1Checks";
 
 
 
@@ -406,52 +409,20 @@ const Game = () => {
 
   // Physics update loop
   useEffect(() => {
-    // Check for player1 and player2 colliding
-    const player1 = player1Pos;
-      const player2 = player2Pos;
-      if (
-        player1.x < player2.x + playerDiameter &&
-        player1.x + playerDiameter > player2.x &&
-        player1.y < player2.y + playerDiameter &&
-        player1.y + playerDiameter > player2.y
-      ) {
-        setGameOver(true);
-      }
-    
-      //check for if touching obstacle
-      levelConfig.obstacles.forEach(obstacle => {
-        if (
-          player1Pos.x + playerRadius > obstacle.x &&
-          player1Pos.x - playerRadius < obstacle.x + obstacle.size &&
-          player1Pos.y + playerRadius > obstacle.y &&
-          player1Pos.y - playerRadius < obstacle.y + obstacle.size
-        ) {
-          setGameOver(true);
-        }
-      });
-
-      if (
-        player1Pos.x < levelConfig.doorPosition.x + 50 &&
-        player1Pos.x + playerDiameter > levelConfig.doorPosition.x &&
-        player1Pos.y < levelConfig.doorPosition.y + 50 &&
-        player1Pos.y + playerDiameter > levelConfig.doorPosition.y
-      ) {
-        setLevelComplete(true);
-      }
-
-       //check if touching door
-       if (
-        player1Pos.x < levelConfig.doorPosition.x + 20 &&
-        player1Pos.x + 20 > levelConfig.doorPosition.x &&
-        player1Pos.y < levelConfig.doorPosition.y + 100 &&
-        player1Pos.y + 100 > levelConfig.doorPosition.y
-      ) {
-        setLevelComplete(true);
-      }
+    //check for collisions that will end the game
+    checkPlayer1Collisions({
+      player1Pos,
+      player2Pos,
+      playerDiameter,
+      playerRadius,
+      levelConfig,
+      setGameOver,
+      setLevelComplete
+    });
 
     let animationFrameId: number;
     let lastTime = performance.now();
-  
+
     const updatePhysics = (currentTime: number) => {
       if (isPaused) {
         animationFrameId = requestAnimationFrame(updatePhysics);
@@ -462,84 +433,42 @@ const Game = () => {
       lastTime = currentTime;
   
       if (!gameOver && !levelComplete) {
-        // Update player 1
-        setPlayer1Pos(prev => {
-          const newPos = { ...prev };
-          let isMoving = false;
+        // Update player 1 movement
+        setPlayer1Pos(prev => 
+          updatePlayer1({
+            prev,
+            keysPressed,
+            moveSpeed,
+            deltaTime,
+            gravity,
+            jumpForce,
+            playerRadius,
+            levelConfig,
+            setPlayer1Direction,
+            setPlayer1IsMoving,
+            checkPlatformCollisions,
+            checkFloorCollisions
+          })
+        );
   
-          // Apply horizontal movement
-          if (keysPressed.has("d")) {
-            newPos.x += moveSpeed * deltaTime;
-            isMoving = true;
-            setPlayer1Direction("right");
-          }
-          if (keysPressed.has("a")) {
-            newPos.x -= moveSpeed * deltaTime;
-            isMoving = true;
-            setPlayer1Direction("left");
-          }
-  
-          setPlayer1IsMoving(isMoving);
-          
-          // Apply gravity
-          newPos.vy += gravity * deltaTime;
-          newPos.y += newPos.vy * deltaTime;
-  
-          // Check both platform and floor collisions
-          const onPlatform = checkPlatformCollisions(newPos);
-          const onFloor = checkFloorCollisions(newPos);
-          
-          // Allow jumping if on either platform or floor
-          if ((onPlatform || onFloor) && keysPressed.has("w") && newPos.vy >= 0) {
-            newPos.vy = jumpForce;
-          }
-  
-          // Constrain to game bounds
-          newPos.x = Math.max(playerRadius, Math.min(levelConfig.gameFieldWidth - playerRadius, newPos.x));
-          newPos.y = Math.max(playerRadius, Math.min(levelConfig.gameFieldHeight - playerRadius, newPos.y));
-  
-          return newPos;
-        });
-  
-        // Update player 2 with similar changes
-        setPlayer2Pos(prev => {
-          const newPos = { ...prev };
-          // let isMoving = false;
-        
-          // If "a" or "d" is pressed, move towards player 1
-          if (keysPressed.has("a") || keysPressed.has("d")) {
-            if (player2Pos.x < player1Pos.x) {
-              newPos.x += moveSpeed * deltaTime;
-              // isMoving = true;
-              setPlayer2Direction("left");
-            } else if (player2Pos.x > player1Pos.x) {
-              newPos.x -= moveSpeed * deltaTime;
-              // isMoving = true;
-              setPlayer2Direction("right");
-            }
-          }
-        
-          // Apply gravity
-          newPos.vy += gravity * deltaTime;
-          newPos.y += newPos.vy * deltaTime;
-  
-          // Check both platform and floor collisions
-          const onPlatform = checkPlatformCollisions(newPos);
-          const onFloor = checkFloorCollisions(newPos);
-          
-          // Allow jumping if on either platform or floor
-          if ((onPlatform || onFloor) && keysPressed.has("w") && newPos.vy >= 0) {
-            newPos.vy = jumpForce;
-          }
-  
-          // Constrain to game bounds
-          newPos.x = Math.max(playerRadius, Math.min(levelConfig.gameFieldWidth - playerRadius, newPos.x));
-          newPos.y = Math.max(playerRadius, Math.min(levelConfig.gameFieldHeight - playerRadius, newPos.y));
-  
-          return newPos;
-        });
-      
-        
+        // Update player 2 
+        setPlayer2Pos(prev => 
+          updatePlayer2({
+            prev,
+            keysPressed,
+            player1Pos,
+            player2Pos,
+            moveSpeed,
+            deltaTime,
+            gravity,
+            jumpForce,
+            playerRadius,
+            levelConfig,
+            setPlayer2Direction,
+            checkPlatformCollisions,
+            checkFloorCollisions
+          })
+        );   
       }
   
       animationFrameId = requestAnimationFrame(updatePhysics);
