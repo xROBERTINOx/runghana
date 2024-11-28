@@ -24,8 +24,8 @@ import { createKeyboardControls } from "@/components/keyboardControls";
 // import { physicsController } from "@/components/physicsController";
 import { updatePlayer1 } from "@/components/updatePlayer1";
 import { updatePlayer2 } from "@/components/updatePlayer2"; //NEED TO UDPATE ALG FOR PLAYER 2 CONST MOVEMENT TOWARD PLAYER
-import { checkPlayer1Collisions } from "@/components/player1Checks";
-import { drawPlatforms, drawFloor, drawDoor, drawObstacles, drawPlayer1, drawPlayer2 } from "@/components/drawItems";
+import { checkPlayer1Collisions, checkPlatformCollision, checkFloorCollision } from "@/components/player1Checks";
+import { drawPlatforms, drawFloor, drawDoor, drawObstacles, drawPlayer1, drawPlayer2, drawLightingEffectPlayer1 } from "@/components/drawItems";
 
 
 
@@ -78,8 +78,8 @@ const Game = () => {
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
-  const gravity = 0.8;
-  const jumpForce = -15;
+  const gravity = 0.98;
+  const jumpForce = -18;
   const moveSpeed = 5;
   
   const levelConfig = getLevel(currentLevel);
@@ -212,10 +212,8 @@ const Game = () => {
         obstacleFrameWidth,
         obstacleCurrentFrame: obstacleCurrentFrame
       });
-      
 
-      // Draw Player 1 (with walking animation)
-      
+      // Draw Player 1 (with walking animation)      
       drawPlayer1({
         ctx,
         imagesRef,
@@ -244,26 +242,13 @@ const Game = () => {
         playerRadius,
         playerDiameter
       });
-      
-
+    
       // Add lighting effect
-      const gradient = ctx.createRadialGradient(
-        player1Pos.x,
-        player1Pos.y,
-        0,
-        player1Pos.x,
-        player1Pos.y,
-        300
-      );
-      gradient.addColorStop(0, "rgba(255, 255, 255, 0.2)");
-      gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(
-        player1Pos.x - 300,
-        player1Pos.y - 300,
-        600,
-        600
-      );
+      drawLightingEffectPlayer1({
+        ctx,
+        player1Pos,
+
+      });
 
       animationFrameId = requestAnimationFrame(render);
     };
@@ -360,64 +345,21 @@ const Game = () => {
 
 
 
-  //  utility functions 
-  const checkPlatformCollisions = (position: Position & { vy: number }) => {
-    let onGround = false;
-    const platformWidth = 120;
-    const platformHeight = 50;
-    
-    for (const platform of levelConfig.platforms) {
-      if (position.x + playerRadius > platform.x && 
-          position.x - playerRadius < platform.x + platformWidth) {
-        
-        if (position.vy > 0 && 
-            position.y + playerRadius > platform.y && 
-            position.y + playerRadius < platform.y + platformHeight) {
-          position.y = platform.y - playerRadius;
-          position.vy = 0;
-          onGround = true;
-        }
-        
-        if (position.vy < 0 && 
-            position.y - playerRadius < platform.y + platformHeight && 
-            position.y - playerRadius > platform.y) {
-          position.y = platform.y + platformHeight + playerRadius;
-          position.vy = 0;
-        }
-      }
-    }
-    
-    return onGround;
+  //  utility functions  !!Deal with fixing platform dimensions
+  const checkPlatformCollisions = (player1Pos: Position & { vy: number }) => {
+    return checkPlatformCollision({
+      player1Pos,
+      playerRadius,
+      levelConfig
+    })
   };
 
-  const checkFloorCollisions = (position: Position & { vy: number }) => {
-    let onGround = false;
-    
-    for (const floor of levelConfig.floor) {
-      // Check if player is within the floor"s x bounds
-      if (position.x + playerRadius > floor.x && 
-          position.x - playerRadius < floor.x + floor.width) {
-        
-        // Check if player is touching the top of the floor
-        if (position.vy > 0 && 
-            position.y + playerRadius > floor.y && 
-            position.y + playerRadius < floor.y + floor.height) {
-          position.y = floor.y - playerRadius;
-          position.vy = 0;
-          onGround = true;
-        }
-        
-        // Check if player is hitting the bottom of the floor
-        if (position.vy < 0 && 
-            position.y - playerRadius < floor.y + floor.height && 
-            position.y - playerRadius > floor.y) {
-          position.y = floor.y + floor.height + playerRadius;
-          position.vy = 0;
-        }
-      }
-    }
-    
-    return onGround;
+  const checkFloorCollisions = (player1Pos: Position & { vy: number }) => {
+    return checkFloorCollision({
+      player1Pos,
+      playerRadius,
+      levelConfig
+    })
   };
 
 

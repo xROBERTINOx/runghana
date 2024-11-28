@@ -3,8 +3,8 @@ import { LevelConfig } from '@/types/game'; // Adjust import path as needed
 
 interface DrawItemsProps {
     ctx: CanvasRenderingContext2D;
-    levelConfig: LevelConfig;
-    imagesRef: MutableRefObject<{
+    levelConfig?: LevelConfig;
+    imagesRef?: MutableRefObject<{
       platform?: HTMLImageElement;
       floor?: HTMLImageElement;
       door?: HTMLImageElement;
@@ -35,8 +35,8 @@ interface DrawItemsProps {
 
 //draw platforms
 export const drawPlatforms = ({ ctx, levelConfig, imagesRef }: DrawItemsProps) => {
-  levelConfig.platforms.forEach(platform => {
-    if (imagesRef.current.platform) {
+  levelConfig?.platforms?.forEach(platform => {
+    if (imagesRef?.current.platform) {
       ctx.drawImage(
         imagesRef.current.platform,
         platform.x,
@@ -50,8 +50,8 @@ export const drawPlatforms = ({ ctx, levelConfig, imagesRef }: DrawItemsProps) =
 
 //draw floor
 export const drawFloor = ({ ctx, levelConfig, imagesRef }: DrawItemsProps) => {
-  levelConfig.floor.forEach(floor => {
-    const floorImage = imagesRef.current.floor;
+  levelConfig?.floor.forEach(floor => {
+    const floorImage = imagesRef?.current.floor;
     if (floorImage) {
       // Get the natural width of the floor image
       const imageWidth = floorImage.width;
@@ -82,7 +82,7 @@ export const drawFloor = ({ ctx, levelConfig, imagesRef }: DrawItemsProps) => {
 
 //draw door
 export const drawDoor = ({ ctx, levelConfig, imagesRef, currentTime = 0 }: DrawItemsProps) => {
-    if (imagesRef.current.door) {
+    if (imagesRef?.current.door && levelConfig) {
       // Bouncing door animation
       const bounceOffset = Math.sin(currentTime / 500) * 10; // Adjust the speed and height of the bounce
       ctx.drawImage(
@@ -122,10 +122,10 @@ export const drawObstacles = ({
     obstacleFrameWidth = 64, // Default frame width, adjust as needed
     obstacleCurrentFrame = 0 
   }: DrawItemsProps) => {
-    const obstacleImage = imagesRef.current.obstacle;
+    const obstacleImage = imagesRef?.current.obstacle;
     
     if (obstacleImage) {
-      levelConfig.obstacles.forEach((obstacle) => {
+      levelConfig?.obstacles.forEach((obstacle) => {
         ctx.drawImage(
           obstacleImage,
           obstacleCurrentFrame * obstacleFrameWidth, // source x (animated frame)
@@ -154,7 +154,7 @@ export const drawPlayer1 = ({
     playerRadius = 64, 
     playerDiameter = 64
   }: DrawItemsProps) => {
-    if (imagesRef.current.player1WalkingSprite && imagesRef.current.player1) {
+    if (imagesRef?.current.player1WalkingSprite && imagesRef.current.player1) {
       if (player1IsMoving) {
         ctx.save();
         if (player1Direction === "left") {
@@ -204,7 +204,7 @@ export const drawPlayer2 = ({
     playerRadius = 64, 
     playerDiameter = 64
   }: DrawItemsProps) => {
-    if (imagesRef.current.player2WalkingSprite && imagesRef.current.player2) {
+    if (imagesRef?.current.player2WalkingSprite && imagesRef.current.player2) {
       if (player2IsMoving) {
         ctx.save();
         if (player2Direction === "left") {
@@ -239,5 +239,28 @@ export const drawPlayer2 = ({
         ctx.restore();
       }
     }
-  };
+};
   
+//draw lighting effect on player1
+export const drawLightingEffectPlayer1 = ({
+    ctx,
+    player1Pos = { x: 64, y: 64 }
+}: DrawItemsProps) => {
+    const gradient = ctx.createRadialGradient(
+        player1Pos.x,
+        player1Pos.y,
+        0,
+        player1Pos.x,
+        player1Pos.y,
+        300
+    );
+    gradient.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(
+        player1Pos.x - 300,
+        player1Pos.y - 300,
+        600,
+        600
+    );
+}
