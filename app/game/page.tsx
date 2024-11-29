@@ -325,7 +325,6 @@ const Game = () => {
             moveSpeed,
             deltaTime,
             gravity,
-            jumpForce,
             playerRadius,
             levelConfig,
             setPlayer2Direction,
