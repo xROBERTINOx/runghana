@@ -49,6 +49,9 @@ export const updatePlayer2 = ({
   // Check if players are at exactly the same y-level (with a small tolerance)
   const atSameYLevel = Math.abs(player1Pos.y - player2Pos.y) < playerRadius;
 
+  newPos.vy += 0.98 * deltaTime;
+  newPos.y += newPos.vy * deltaTime;
+
   // If at the same y-level, chase horizontally
   if (atSameYLevel) { //Chasing player
     console.log("Chasing player1")
@@ -68,6 +71,13 @@ export const updatePlayer2 = ({
         closestPlatform = platform
         console.log("New platform set");
       }
+    }
+    
+    const onPlatform = checkPlatformCollisions(newPos);
+    const onFloor = checkFloorCollisions(newPos);
+
+    if (onPlatform || onFloor) {
+      newPos.vy = -18;
     }
     // console.log(closestPlatform);
     const closerSideX = closestPlatform.x < player2Pos.x 
