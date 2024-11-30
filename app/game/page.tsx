@@ -331,7 +331,7 @@ const Game = () => {
             checkPlatformCollisions,
             checkFloorCollisions
           })
-        );   
+        ); 
       }
   
       animationFrameId = requestAnimationFrame(updatePhysics);

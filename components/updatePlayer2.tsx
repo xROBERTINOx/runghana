@@ -7,7 +7,7 @@ interface UpdatePlayer2Props {
     y: number; 
     vy: number;
   };
-  player1Pos: { x: number; y: number };
+  player1Pos: { x: number; y: number; vy: number };
   player2Pos: { x: number; y: number };
   moveSpeed: number;
   deltaTime: number;
@@ -42,42 +42,25 @@ export const updatePlayer2 = ({
   // Create a new position object with the previous state
   const newPos = { ...prev };
   
-  // Check current position status
+  // Calculate the offset between player 1 and player 2
+  const xOffset = player2Pos.x - player1Pos.x;
+  const yOffset = player2Pos.y - player1Pos.y;
+
+  // Mimic player 1's vertical velocity and apply gravity
+  newPos.vy = player1Pos.vy;
+  newPos.vy += gravity * deltaTime;
+
+  // Update position based on player 1's movement pattern
+  newPos.x = player1Pos.x + xOffset;
+  newPos.y += newPos.vy * deltaTime;
+
+  // Check collisions for this new position
   const onPlatform = checkPlatformCollisions(newPos);
   const onFloor = checkFloorCollisions(newPos);
 
-  // Check if players are at exactly the same y-level (with a small tolerance)
-  const atSameYLevel = Math.abs(player1Pos.y - player2Pos.y) < playerRadius;
-
-  // If at the same y-level, chase horizontally
-  if (atSameYLevel) { //Chasing player
-    console.log("Chasing player1")
-    // Determine horizontal direction towards player 1
-    const horizontalDirectionToPlayer1 = player1Pos.x < player2Pos.x ? -1 : 1;
-    
-    // Move horizontally towards player 1
-    newPos.x += moveSpeed * deltaTime * horizontalDirectionToPlayer1;
-    
-    // Update player 2 direction for animation
-    setPlayer2Direction(horizontalDirectionToPlayer1 > 0 ? "left" : "right");
-  } else  { //Chasing platform
-    // console.log("Chasing nearsest platform");
-    let closestPlatform: Platform = levelConfig.platforms[0]
-    for (const platform of levelConfig.platforms) {
-      if (platform.y > closestPlatform.y && platform.y < player2Pos.y) {
-        closestPlatform = platform
-        console.log("New platform set");
-      }
-    }
-    // console.log(closestPlatform);
-    const directionToClosestPlatform = closestPlatform.x < player2Pos.x ? -1 : 1;
-    console.log(directionToClosestPlatform);
-    newPos.x += moveSpeed * deltaTime * directionToClosestPlatform;
-  }
-
-  // Apply gravity
-  newPos.vy += gravity * deltaTime;
-  newPos.y += newPos.vy * deltaTime;
+  // Update player 2 direction for animation
+  const horizontalDirection = player1Pos.x > player2Pos.x ? 1 : -1;
+  setPlayer2Direction(horizontalDirection > 0 ? "left" : "right");
 
   // If landed on platform or floor, reset vertical velocity and adjust position
   if (onPlatform || onFloor) {
