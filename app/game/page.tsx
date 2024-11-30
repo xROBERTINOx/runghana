@@ -21,9 +21,16 @@ import nextLevelImage from "@/assets/nextLevel.png";
 import Cookies from 'js-cookie';
 import menuImage from '@/assets/menu.png';
 import { createKeyboardControls } from "@/components/keyboardControls";
+// import { physicsController } from "@/components/physicsController";
 import { updatePlayer1 } from "@/components/updatePlayer1";
-import { checkPlayer1Collisions, checkPlatformCollision, checkFloorCollision, checkPlatformCollision2, checkFloorCollision2 } from "@/components/player1Checks";
+import { updatePlayer2 } from "@/components/updatePlayer2"; //NEED TO UDPATE ALG FOR PLAYER 2 CONST MOVEMENT TOWARD PLAYER
+import { checkPlayer1Collisions, checkPlatformCollision, checkFloorCollision } from "@/components/player1Checks";
 import { drawPlatforms, drawFloor, drawDoor, drawObstacles, drawPlayer1, drawPlayer2, drawLightingEffectPlayer1 } from "@/components/drawItems";
+
+
+
+
+
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,6 +50,9 @@ const Game = () => {
     menu?: HTMLImageElement;
   }>({});
   
+  
+
+
   const [player1Pos, setPlayer1Pos] = useState<Position & { vy: number }>(
     { ...getLevel(1).player1Start, vy: 0 }
   );
@@ -61,32 +71,10 @@ const Game = () => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [lastFrameUpdate, setLastFrameUpdate] = useState(0);
   const frameUpdateInterval = 100;
+  // const [isObstacleTouched, setIsObstacleTouched] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [obstacleCurrentFrame, setObstacleCurrentFrame] = useState(0);
-  const [lastPlayer1Move, setLastPlayer1Move] = useState<{
-    x: number;
-    y: number;
-    vy: number;
-    timestamp: number;
-    moveType: string;
-    targetX: number;
-  } | null>(null);
-  
-  const [player2MovementState, setPlayer2MovementState] = useState<{
-    isMoving: boolean;
-    moveType: string | null;
-    startTime: number | null;
-    duration: number;
-    initialPos: { x: number; y: number; vy: number; } | null;
-  }>({
-    isMoving: false,
-    moveType: null,
-    startTime: null,
-    duration: 0,
-    initialPos: null
-  });
-  
 
   const playerDiameter = 50;
   const playerRadius = playerDiameter / 2;
@@ -96,10 +84,13 @@ const Game = () => {
   
   const levelConfig = getLevel(currentLevel);
 
+  
   useEffect(() => {
+    //load cookies
     const retVal = Number(Cookies.get('currentLevel') || 1);
     setCurrentLevel(retVal);
     
+    //load images
     const loadImage = (src: string): Promise<HTMLImageElement> => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -143,7 +134,10 @@ const Game = () => {
     });
   }, []);
 
+
+  // Main game loop
   useEffect(() => {
+    
     if (!imagesLoaded) return;
 
     let animationFrameId: number;
@@ -154,6 +148,10 @@ const Game = () => {
     const player2NumFrames = 3;
     const obstacleFrameWidth = obstacleImage.width / 7;
     const obstacleNumFrames = 7;
+    
+
+
+
 
     const render = (currentTime: number) => {
       const canvas = canvasRef.current;
@@ -173,26 +171,32 @@ const Game = () => {
         setPlayer1CurrentFrame(prev => (prev + 1) % player1NumFrames);
         setPlayer2CurrentFrame(prev => (prev + 1) % player2NumFrames);
         
+        // Add obstacle frame animation
         setObstacleCurrentFrame(prev => (prev + 1) % obstacleNumFrames);
         
         setPlayer2IsMoving(false);
         setLastFrameUpdate(currentTime);
       }
+    
 
+      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Draw platforms
       drawPlatforms({
         ctx,
         levelConfig,
         imagesRef,
       })
       
+      // Draw floor
       drawFloor({
         ctx,
         levelConfig,
         imagesRef,
       })
       
+      //draw door
      drawDoor({
       ctx,
       levelConfig,
@@ -200,6 +204,7 @@ const Game = () => {
       currentTime: currentTime
      })
 
+      // Draw obstacles
       drawObstacles({
         ctx,
         levelConfig,
@@ -208,6 +213,7 @@ const Game = () => {
         obstacleCurrentFrame: obstacleCurrentFrame
       });
 
+      // Draw Player 1 (with walking animation)      
       drawPlayer1({
         ctx,
         imagesRef,
@@ -222,20 +228,26 @@ const Game = () => {
         playerDiameter
       });
   
-      setTimeout(() => {
-    drawPlayer2({
-      ctx,
-      imagesRef,
-      player2Pos,
-      playerRadius,
-      levelConfig,
-      player2CurrentFrame,
-    });
-  }, 2000);
+      // Draw Player 2 (with walking animation)
+      drawPlayer2({
+        ctx,
+        imagesRef,
+        levelConfig,
+        player2Pos,
+        player2IsMoving,
+        player2Direction,
+        player2CurrentFrame,
+        player2FrameWidth,
+        frameHeight,
+        playerRadius,
+        playerDiameter
+      });
     
+      // Add lighting effect
       drawLightingEffectPlayer1({
         ctx,
         player1Pos,
+
       });
 
       animationFrameId = requestAnimationFrame(render);
@@ -245,6 +257,8 @@ const Game = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [player1Pos, player2Pos, levelConfig, player1IsMoving, player2IsMoving, player1CurrentFrame, player2CurrentFrame, player1Direction, player2Direction, imagesLoaded, lastFrameUpdate]);
 
+
+  // Keyboard controls
   useEffect(() => {
     const { handleKeyDown, handleKeyUp } = createKeyboardControls(setKeysPressed);
 
@@ -257,7 +271,10 @@ const Game = () => {
     };
   }, []);
 
+
+  // Physics update loop
   useEffect(() => {
+    //check for collisions that will end the game
     checkPlayer1Collisions({
       player1Pos,
       player2Pos,
@@ -281,7 +298,7 @@ const Game = () => {
       lastTime = currentTime;
   
       if (!gameOver && !levelComplete) {
-        console.log(player2Pos);
+        // Update player 1 movement
         setPlayer1Pos(prev => 
           updatePlayer1({
             prev,
@@ -295,14 +312,26 @@ const Game = () => {
             setPlayer1Direction,
             setPlayer1IsMoving,
             checkPlatformCollisions,
-            checkFloorCollisions,
-            player2Pos,
-            setPlayer2Direction,
-            setPlayer2Pos,
-            setPlayer2IsMoving
+            checkFloorCollisions
           })
         );
-        
+  
+        // Update player 2 
+        setPlayer2Pos(prev => 
+          updatePlayer2({
+            prev,
+            player1Pos,
+            player2Pos,
+            moveSpeed,
+            deltaTime,
+            gravity,
+            playerRadius,
+            levelConfig,
+            setPlayer2Direction,
+            checkPlatformCollisions,
+            checkFloorCollisions
+          })
+        );   
       }
   
       animationFrameId = requestAnimationFrame(updatePhysics);
@@ -312,16 +341,11 @@ const Game = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [keysPressed, gameOver, levelComplete, levelConfig, player1Pos.x, player2Pos.x]);
 
+
+
+  //  utility functions  !!Deal with fixing platform dimensions
   const checkPlatformCollisions = (player1Pos: Position & { vy: number }) => {
     return checkPlatformCollision({
-      player1Pos,
-      playerRadius,
-      levelConfig
-    })
-  };
-
-  const checkPlatformCollisions2 = (player2Pos:Position & { vy: number }) => {
-    return checkPlatformCollision2({
       player1Pos,
       playerRadius,
       levelConfig
@@ -336,13 +360,6 @@ const Game = () => {
     })
   };
 
-  const checkFloorCollisions2 = (player2Pos: Position & { vy: number }) => {
-    return checkFloorCollision({
-      player1Pos,
-      playerRadius,
-      levelConfig
-    })
-  };
 
   const resetLevel = () => {
     const levelConfig = getLevel(currentLevel);
@@ -360,7 +377,6 @@ const Game = () => {
     setGameOver(false);
     setLevelComplete(false);
   };
-
   return (
     <div className="p-4 absolute relative [image-rendering:pixelated]">      
       <div className="text-center mb-4">
@@ -413,14 +429,14 @@ const Game = () => {
             resetGame();
           }
         }}
-        style={{ zIndex: 50, background: 'none', border: 'none' }}
+        style={{ zIndex: 50, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
       >
         <img
           src={nextLevelImage.src}
           alt="Next Level"
           style={{
-            width: '100px',
-            height: '100px',
+            width: '100px', // Adjust the size as needed
+            height: '100px', // Adjust the size as needed
             objectFit: 'contain'
           }}
         />
@@ -428,7 +444,7 @@ const Game = () => {
       <button
         onClick={resetGame}
         className="absolute bottom-10"
-        style={{ zIndex: 50, background: 'none', border: 'none' }}
+        style={{ zIndex: 50, background: 'none', border: 'none' }} // Ensure the button is above the overlay and remove default styles
       >
         <img
           src={restartButtonImage.src}
@@ -443,6 +459,7 @@ const Game = () => {
     </div>
   </div>
 )}
+
 {gameOver && (
   <div className="absolute inset-0 flex items-center justify-center">
     <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.7)" }}>
