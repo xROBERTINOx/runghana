@@ -70,9 +70,13 @@ export const updatePlayer2 = ({
       }
     }
     // console.log(closestPlatform);
-    const directionToClosestPlatform = closestPlatform.x < player2Pos.x ? -1 : 1;
-    console.log(directionToClosestPlatform);
-    newPos.x += moveSpeed * deltaTime * directionToClosestPlatform;
+    const closerSideX = closestPlatform.x < player2Pos.x 
+      ? (closestPlatform.width ? closestPlatform.x + closestPlatform.width + 60 : closestPlatform.x) 
+      : closestPlatform.x;
+    const directionToCloserSide = closerSideX < player2Pos.x ? -1 : 1;
+    newPos.x += moveSpeed * deltaTime * directionToCloserSide;
+
+    console.log(directionToCloserSide);
   }
 
   // Apply gravity
