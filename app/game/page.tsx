@@ -222,19 +222,16 @@ const Game = () => {
         playerDiameter
       });
   
-      drawPlayer2({
-        ctx,
-        imagesRef,
-        levelConfig,
-        player2Pos,
-        player2IsMoving,
-        player2Direction,
-        player2CurrentFrame,
-        player2FrameWidth,
-        frameHeight,
-        playerRadius,
-        playerDiameter
-      });
+      setTimeout(() => {
+    drawPlayer2({
+      ctx,
+      imagesRef,
+      player2Pos,
+      playerRadius,
+      levelConfig,
+      player2CurrentFrame,
+    });
+  }, 2000);
     
       drawLightingEffectPlayer1({
         ctx,
