@@ -116,3 +116,4 @@ export const updatePlayer2 = ({
 
   return newPos;
 };
+
