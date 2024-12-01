@@ -3,8 +3,6 @@ import { Platform, Floor, Obstacle } from "@/types/game";
 
 interface UpdatePlayer2Props {
   prev: Position & { vy: number, lastMoveTime?: number, moveDirection?: 'left' | 'right' | 'jump' | 'none' };
-  player1Pos: Position & { vy: number };
-  player2Pos: Position;
   moveSpeed: number;
   deltaTime: number;
   gravity: number;
@@ -25,8 +23,6 @@ interface UpdatePlayer2Props {
 
 export const updatePlayer2 = ({
   prev,
-  player1Pos,
-  player2Pos,
   moveSpeed,
   deltaTime,
   gravity,

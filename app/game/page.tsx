@@ -330,8 +330,6 @@ const Game = () => {
         setPlayer2Pos(prev => 
           updatePlayer2({
             prev,
-            player1Pos,
-            player2Pos,
             moveSpeed,
             deltaTime,
             gravity,
