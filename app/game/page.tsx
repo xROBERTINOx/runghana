@@ -298,7 +298,7 @@ const Game = () => {
     let animationFrameId: number;
     let lastTime = performance.now();
 
-    const updatePhysics = async (currentTime: number) => {
+    const updatePhysics = (currentTime: number) => {
       if (isPaused) {
         animationFrameId = requestAnimationFrame(updatePhysics);
         return;
@@ -327,21 +327,22 @@ const Game = () => {
         );
   
         // Update player 2 
-        const newPos = await updatePlayer2({
-          prev: player2Pos,
-          player1Pos,
-          player2Pos,
-          moveSpeed,
-          deltaTime,
-          gravity,
-          playerRadius,
-          levelConfig,
-          setPlayer2Direction,
-          checkPlatformCollisions,
-          checkFloorCollisions,
-          keysPressed
-        });
-        setPlayer2Pos(newPos);
+        setPlayer2Pos(prev => 
+          updatePlayer2({
+            prev,
+            player1Pos,
+            player2Pos,
+            moveSpeed,
+            deltaTime,
+            gravity,
+            playerRadius,
+            levelConfig,
+            setPlayer2Direction,
+            checkPlatformCollisions,
+            checkFloorCollisions,
+            keysPressed
+          })
+        );
         
       }
   
