@@ -123,7 +123,7 @@ export const getLevel = (level: number): LevelConfig => {
         ],
         floor: [{ x: 0, y: 3100, width: 1900, height: 40 }],
         obstacles: [
-          { x: 400, y: 2700, size: 60 },
+          { x: 420, y: 2780, size: 60 },
           { x: 700, y: 2300, size: 60 },
           { x: 1000, y: 2100, size: 60 },
           { x: 1300, y: 1800, size: 60 }
