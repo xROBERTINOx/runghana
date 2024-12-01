@@ -37,8 +37,7 @@ export const updatePlayer2 = ({
   checkFloorCollisions,
   keysPressed
 }: UpdatePlayer2Props): Position & { vy: number, lastMoveTime?: number, moveDirection?: 'left' | 'right' | 'jump' | 'none' } => {
-  // Create a new position object with the previous state
-
+  
   const newPos = { 
     ...prev, 
     // Ensure these properties exist

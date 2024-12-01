@@ -86,7 +86,7 @@ const Game = () => {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [obstacleCurrentFrame, setObstacleCurrentFrame] = useState(0);
 
-  const playerDiameter = 50;
+  const playerDiameter = 40;
   const playerRadius = playerDiameter / 2;
   const gravity = 0.98;
   const jumpForce = -18;
@@ -394,7 +394,7 @@ const Game = () => {
       <div className="text-center mb-4">
         <h2 className="text-2xl font-bold text-purple-600">Level {currentLevel}</h2>
         <p className="text-sm text-gray-600 mt-2">
-          YOU: WSAD to move and jump, do not let your shadow get you!
+          YOU: WSAD to move and jump, do not let your shadow get to the door before you or touch you!
         </p>
       </div>
       

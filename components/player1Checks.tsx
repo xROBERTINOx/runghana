@@ -57,6 +57,16 @@ export const checkPlayer1Collisions = ({
     ) {
       setLevelComplete(true);
     }
+
+    // check if player2 is touching door
+    if (
+        player2Pos.x < levelConfig.doorPosition.x + 20 &&
+        player2Pos.x + 20 > levelConfig.doorPosition.x &&
+        player2Pos.y < levelConfig.doorPosition.y + 100 &&
+        player2Pos.y + 100 > levelConfig.doorPosition.y
+    ) {
+        setGameOver(true);
+    }
 };
 
 //check platform collisions
