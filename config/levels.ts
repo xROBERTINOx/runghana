@@ -7,8 +7,8 @@ export const getLevel = (level: number): LevelConfig => {
   switch (level) {
     case 1:
       return {
-        player1Start: { x: 50, y: 750 },
-        player2Start: { x: 1200, y: 750 },
+        player1Start: { x: 80, y: 750 },
+        player2Start: { x: 805, y: 750 },
         goalPosition: { x: 650, y: 50 },
         platforms: [
           { x: 150, y: 800, width: 120, height: 50 },

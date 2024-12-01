@@ -56,9 +56,19 @@ const Game = () => {
   const [player1Pos, setPlayer1Pos] = useState<Position & { vy: number }>(
     { ...getLevel(1).player1Start, vy: 0 }
   );
-  const [player2Pos, setPlayer2Pos] = useState<Position & { vy: number }>(
-    { ...getLevel(1).player2Start, vy: 0 }
+  const [player2Pos, setPlayer2Pos] = useState<Position & { 
+    vy: number, 
+    lastMoveTime?: number, 
+    moveDirection?: 'left' | 'right' | 'jump' | 'none' 
+  }>(
+    { 
+      ...getLevel(1).player2Start, 
+      vy: 0,
+      lastMoveTime: 0,
+      moveDirection: 'none'
+    }
   );
+  
   const [gameOver, setGameOver] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
@@ -288,7 +298,7 @@ const Game = () => {
     let animationFrameId: number;
     let lastTime = performance.now();
 
-    const updatePhysics = (currentTime: number) => {
+    const updatePhysics = async (currentTime: number) => {
       if (isPaused) {
         animationFrameId = requestAnimationFrame(updatePhysics);
         return;
@@ -317,21 +327,22 @@ const Game = () => {
         );
   
         // Update player 2 
-        setPlayer2Pos(prev => 
-          updatePlayer2({
-            prev,
-            player1Pos,
-            player2Pos,
-            moveSpeed,
-            deltaTime,
-            gravity,
-            playerRadius,
-            levelConfig,
-            setPlayer2Direction,
-            checkPlatformCollisions,
-            checkFloorCollisions
-          })
-        ); 
+        const newPos = await updatePlayer2({
+          prev: player2Pos,
+          player1Pos,
+          player2Pos,
+          moveSpeed,
+          deltaTime,
+          gravity,
+          playerRadius,
+          levelConfig,
+          setPlayer2Direction,
+          checkPlatformCollisions,
+          checkFloorCollisions,
+          keysPressed
+        });
+        setPlayer2Pos(newPos);
+        
       }
   
       animationFrameId = requestAnimationFrame(updatePhysics);
